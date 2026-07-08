@@ -21,7 +21,7 @@
         .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
         .track-card { background: var(--bg-surface); padding: 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; text-align: center; }
         .track-card:hover { background: var(--bg-card); transform: translateY(-4px); }
-        .track-pic { width: 100%; aspect-ratio: 1; border-radius: 6px; margin-bottom: 12px; object-fit: cover; }
+        .track-pic { width: 100%; aspect-ratio: 1; background: #282828; border-radius: 6px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--primary); }
         .track-title { font-weight: 700; font-size: 14px; margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
         .track-desc { font-size: 12px; color: var(--text-muted); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
         #loading { display: none; text-align: center; color: var(--text-muted); margin: 20px 0; }
@@ -36,17 +36,28 @@
         <div class="header-section">
             <h1>Music<span>Stream</span></h1>
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Введите песню или артиста...">
+                <input type="text" id="search-input" placeholder="Введите название (на английском/латинице)...">
                 <button onclick="searchMusic()">Поиск</button>
             </div>
         </div>
-        <div id="loading">🎵 Ищем оригинальный трек в глобальной базе...</div>
+        <div id="loading">🎵 Ищем свободные аудиофайлы...</div>
         <div id="search-results-section" style="display: none;">
             <h2>Результаты поиска</h2>
             <div id="results" class="grid-layout"></div>
         </div>
         <h2>Популярно у друзей 🔥</h2>
-        <div class="grid-layout" id="trending"></div>
+        <div class="grid-layout">
+            <div class="track-card" onclick="playTrack('Rock Track', 'https://wikimedia.org')">
+                <div class="track-pic">🎸</div>
+                <p class="track-title">Guitar Loop</p>
+                <p class="track-desc">Rock Classic</p>
+            </div>
+            <div class="track-card" onclick="playTrack('Synth Pop', 'https://wikimedia.org')">
+                <div class="track-pic">🎹</div>
+                <p class="track-title">Electro Loop</p>
+                <p class="track-desc">Trance Beat</p>
+            </div>
+        </div>
     </div>
     <div id="player-panel" class="player-panel">
         <div class="player-container">
@@ -55,9 +66,6 @@
         </div>
     </div>
     <script>
-        // Стабильный, вечный и бесплатный CORS-прокси без ограничений
-        const proxy = "https://allorigins.win";
-
         async function searchMusic() {
             const query = document.getElementById('search-input').value;
             if (!query) return;
@@ -66,31 +74,37 @@
             document.getElementById('results').innerHTML = '';
             
             try {
-                const target = `https://deezer.com{encodeURIComponent(query)}&limit=6`;
-                const res = await fetch(proxy + encodeURIComponent(target));
-                const raw = await res.json();
-                const data = JSON.parse(raw.contents);
+                // Прямой запрос к Wikimedia без каких-либо прокси
+                const url = `https://wikimedia.org{encodeURIComponent(query)}+filetype:audio&format=json&origin=*`;
+                const res = await fetch(url);
+                const data = await res.json();
                 
                 document.getElementById('loading').style.display = 'none';
-                (data.data || []).forEach(item => {
-                    createCard(item, 'results');
+                const searchResults = data.query.search || [];
+                
+                if (searchResults.length === 0) {
+                    document.getElementById('results').innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1;">Ничего не найдено</p>';
+                    return;
+                }
+                
+                searchResults.forEach(item => {
+                    const cleanTitle = item.title.replace('File:', '').replace('.ogg', '').replace('.mp3', '');
+                    const fileUrl = `https://wikimedia.org{encodeURIComponent(item.title.replace('File:', ''))}`;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'track-card';
+                    card.onclick = () => playTrack(cleanTitle, fileUrl);
+                    card.innerHTML = `
+                        <div class="track-pic">▶️</div>
+                        <p class="track-title">${cleanTitle}</p>
+                        <p class="track-desc">Свободный трек</p>
+                    `;
+                    document.getElementById('results').appendChild(card);
                 });
             } catch (err) {
                 document.getElementById('loading').style.display = 'none';
-                alert('Ошибка сети. Попробуйте еще раз.');
+                alert('Ошибка соединения. Попробуйте еще раз.');
             }
-        }
-
-        function createCard(item, targetId) {
-            const card = document.createElement('div');
-            card.className = 'track-card';
-            card.onclick = () => playTrack(`${item.artist.name} - ${item.title}`, item.preview);
-            card.innerHTML = `
-                <img class="track-pic" src="${item.album.cover_medium}" alt="cover">
-                <p class="track-title">${item.title}</p>
-                <p class="track-desc">${item.artist.name}</p>
-            `;
-            document.getElementById(targetId).appendChild(card);
         }
 
         function playTrack(title, url) {
@@ -100,18 +114,6 @@
             document.getElementById('player-panel').style.display = 'block';
             player.play();
         }
-
-        // Загрузка треков "Популярно" при старте
-        async function loadTrending() {
-            try {
-                const res = await fetch(proxy + encodeURIComponent("https://deezer.com"));
-                const raw = await res.json();
-                const data = JSON.parse(raw.contents);
-                (data.data || []).forEach(item => createCard(item, 'trending'));
-            } catch(e) {}
-        }
-        loadTrending();
-
         document.getElementById('search-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchMusic(); });
     </script>
 </body>
