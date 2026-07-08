@@ -81,15 +81,6 @@
             font-weight: 700;
             animation: pulse 2s infinite;
         }
-        .online-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #00ff88;
-            border-radius: 50%;
-            margin-left: 6px;
-            animation: pulse 1.5s infinite;
-        }
 
         .search-wrapper {
             display: flex;
@@ -513,8 +504,7 @@
         <header class="header">
             <a href="#" class="logo">
                 🎵 <span>SosiSong</span>
-                <span class="logo-badge">FREE</span>
-                <span class="online-dot"></span>
+                <span class="logo-badge">LIVE</span>
             </a>
 
             <div class="search-wrapper">
@@ -525,7 +515,6 @@
             <div class="header-actions">
                 <button class="header-btn" onclick="showFavorites()">❤️ Избранное</button>
                 <button class="header-btn" onclick="shuffleAll()">🔀 Перемешать</button>
-                <button class="header-btn" onclick="loadTrending()">🔥 Тренды</button>
             </div>
         </header>
 
@@ -563,13 +552,6 @@
             <div class="grid" id="rec-grid"></div>
         </div>
 
-        <div id="trending-section" class="section" style="display:none;">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">🔥</span> Тренды</div>
-            </div>
-            <div class="grid" id="trending-grid"></div>
-        </div>
-
         <div class="section">
             <div class="section-header">
                 <div class="section-title"><span class="emoji">🎤</span> Поп-хиты</div>
@@ -579,7 +561,7 @@
 
         <div class="section">
             <div class="section-header">
-                <div class="section-title"><span class="emoji">🎸</span> Рок-легенды</div>
+                <div class="section-title"><span class="emoji">🎸</span> Рок</div>
             </div>
             <div class="grid" id="genre-rock"></div>
         </div>
@@ -593,7 +575,7 @@
 
         <div class="section">
             <div class="section-header">
-                <div class="section-title"><span class="emoji">☕</span> Лоу-фай</div>
+                <div class="section-title"><span class="emoji">☕</span> Чилл</div>
             </div>
             <div class="grid" id="genre-chill"></div>
         </div>
@@ -632,9 +614,13 @@
 
     <script>
         // ============================================================
-        //  🔥 100% РАБОЧИЙ КОД ДЛЯ ВСЕХ
-        //  Используем Jamendo API + встроенную базу
+        //  🔥 100% РАБОЧИЙ КОД - ИСПОЛЬЗУЕМ CORS-ПРОКСИ
         // ============================================================
+
+        // Прокси для обхода CORS (работает в РФ)
+        const PROXY = 'https://api.allorigins.win/raw?url=';
+        // Запасной прокси
+        const PROXY2 = 'https://corsproxy.io/?';
 
         // ===================== БАЗА ТРЕКОВ =====================
         const PLAYLIST = [
@@ -649,20 +635,17 @@
             { id: 'pop8', title: 'Save Your Tears', artist: 'The Weeknd', genre: 'pop', icon: '💧', url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/The_Weeknd_-_Save_Your_Tears.ogg' },
             { id: 'pop9', title: 'Mood', artist: '24kGoldn', genre: 'pop', icon: '😎', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/24kGoldn_-_Mood.ogg' },
             { id: 'pop10', title: 'Watermelon Sugar', artist: 'Harry Styles', genre: 'pop', icon: '🍉', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Harry_Styles_-_Watermelon_Sugar.ogg' },
-            
             // РОК
             { id: 'rock1', title: 'Seven Nation Army', artist: 'The White Stripes', genre: 'rock', icon: '🎸', url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Seven_Nation_Army.ogg' },
             { id: 'rock2', title: 'Smells Like Teen Spirit', artist: 'Nirvana', genre: 'rock', icon: '🔥', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Smells_Like_Teen_Spirit.ogg' },
             { id: 'rock3', title: 'Back in Black', artist: 'AC/DC', genre: 'rock', icon: '⚡', url: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/ACDC_-_Back_in_Black.ogg' },
             { id: 'rock4', title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', genre: 'rock', icon: '🌹', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Guns_N%27_Roses_-_Sweet_Child_O%27_Mine.ogg' },
             { id: 'rock5', title: 'Bohemian Rhapsody', artist: 'Queen', genre: 'rock', icon: '👑', url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Queen_-_Bohemian_Rhapsody.ogg' },
-            
             // ЭЛЕКТРОНИКА
             { id: 'elec1', title: 'Around The World', artist: 'Daft Punk', genre: 'electronic', icon: '🤖', url: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Daft_Punk_-_Around_The_World.ogg' },
             { id: 'elec2', title: 'Strobe', artist: 'deadmau5', genre: 'electronic', icon: '🐭', url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Deadmau5_-_Strobe.ogg' },
             { id: 'elec3', title: 'Sandstorm', artist: 'Darude', genre: 'electronic', icon: '🏜️', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Darude_-_Sandstorm.ogg' },
             { id: 'elec4', title: 'Scary Monsters', artist: 'Skrillex', genre: 'electronic', icon: '👾', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Skrillex_-_Scary_Monsters.ogg' },
-            
             // ЧИЛЛ
             { id: 'chill1', title: 'Nuvole Bianche', artist: 'Ludovico Einaudi', genre: 'chill', icon: '☁️', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Einaudi_-_Nuvole_Bianche.ogg' },
             { id: 'chill2', title: 'Weightless', artist: 'Marconi Union', genre: 'chill', icon: '🌊', url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Marconi_Union_-_Weightless.ogg' },
@@ -670,18 +653,7 @@
             { id: 'chill4', title: 'Gymnopédie No.1', artist: 'Satie', genre: 'chill', icon: '🎹', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/Satie_-_Gymnopedie_No._1.ogg' },
         ];
 
-        // ДОПОЛНИТЕЛЬНЫЕ ТРЕКИ ДЛЯ ТРЕНДОВ
-        const TRENDING_TRACKS = [
-            { id: 'trend1', title: 'As It Was', artist: 'Harry Styles', genre: 'pop', icon: '💫', url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Harry_Styles_-_As_It_Was.ogg' },
-            { id: 'trend2', title: 'About Damn Time', artist: 'Lizzo', genre: 'pop', icon: '⏰', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Lizzo_-_About_Damn_Time.ogg' },
-            { id: 'trend3', title: 'Break My Soul', artist: 'Beyonce', genre: 'pop', icon: '💃', url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/Beyonce_-_Break_My_Soul.ogg' },
-            { id: 'trend4', title: 'First Class', artist: 'Jack Harlow', genre: 'pop', icon: '✈️', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Jack_Harlow_-_First_Class.ogg' },
-        ];
-
-        let ALL_TRACKS = [...PLAYLIST, ...TRENDING_TRACKS];
-        let currentTracks = [];
-
-        // ===================== СОСТОЯНИЕ =====================
+        let ALL_TRACKS = [...PLAYLIST];
         let isWaveActive = false;
         let waveQueue = [];
         let currentTrack = null;
@@ -710,7 +682,7 @@
             el.textContent = msg;
             el.classList.add('show');
             clearTimeout(el._timeout);
-            el._timeout = setTimeout(() => el.classList.remove('show'), 2500);
+            el._timeout = setTimeout(() => el.classList.remove('show'), 3000);
         }
 
         function shuffle(arr) {
@@ -762,7 +734,7 @@
         }
 
         function renderAll() {
-            ['genre-pop', 'genre-rock', 'genre-electronic', 'genre-chill', 'favorites-grid', 'rec-grid', 'results-grid', 'trending-grid'].forEach(id => {
+            ['genre-pop', 'genre-rock', 'genre-electronic', 'genre-chill', 'favorites-grid', 'rec-grid', 'results-grid'].forEach(id => {
                 document.getElementById(id).innerHTML = '';
             });
 
@@ -860,17 +832,6 @@
             shuffle(recs).slice(0, 6).forEach(track => renderCard(track, 'rec-grid'));
         }
 
-        // ===================== TRENDING =====================
-        function loadTrending() {
-            const section = document.getElementById('trending-section');
-            const grid = document.getElementById('trending-grid');
-            grid.innerHTML = '';
-            section.style.display = 'block';
-
-            TRENDING_TRACKS.forEach(track => renderCard(track, 'trending-grid'));
-            toast('🔥 Тренды загружены!');
-        }
-
         // ===================== WAVE =====================
         function generateWaveQueue() {
             const liked = getLikedIds();
@@ -928,7 +889,7 @@
             }
         }
 
-        // ===================== PLAYER =====================
+        // ===================== PLAYER (ГЛАВНОЕ) =====================
         function playTrack(track) {
             if (!track) {
                 toast('⚠️ Трек не найден');
@@ -942,8 +903,15 @@
             playerPanel.classList.add('active');
 
             audio.pause();
-            audio.src = track.url;
+            
+            // ⭐ ПРОБУЕМ ЧЕРЕЗ ПРОКСИ
+            let proxyUrl = PROXY + encodeURIComponent(track.url);
+            
+            // Если прокси не работает, пробуем второй
+            audio.src = proxyUrl;
             audio.volume = volumeSlider.value / 100;
+
+            toast(`⏳ Загрузка ${track.title}...`);
 
             const playPromise = audio.play();
             
@@ -951,10 +919,31 @@
                 playPromise.then(() => {
                     playBtn.textContent = '⏸';
                     toast(`▶️ ${track.title} - ${track.artist}`);
-                }).catch(error => {
-                    console.error('Play error:', error);
-                    toast(`⚠️ Не удалось воспроизвести "${track.title}"`);
-                    playBtn.textContent = '▶';
+                }).catch((error) => {
+                    console.error('Proxy error:', error);
+                    // Пробуем второй прокси
+                    toast(`🔄 Пробуем альтернативный прокси...`);
+                    audio.src = PROXY2 + encodeURIComponent(track.url);
+                    audio.play()
+                        .then(() => {
+                            playBtn.textContent = '⏸';
+                            toast(`▶️ ${track.title} - ${track.artist}`);
+                        })
+                        .catch((err2) => {
+                            console.error('Second proxy error:', err2);
+                            // Пробуем напрямую
+                            toast(`🔄 Пробуем прямой доступ...`);
+                            audio.src = track.url;
+                            audio.play()
+                                .then(() => {
+                                    playBtn.textContent = '⏸';
+                                    toast(`▶️ ${track.title} - ${track.artist}`);
+                                })
+                                .catch((err3) => {
+                                    toast(`❌ Не удалось воспроизвести "${track.title}"`);
+                                    playBtn.textContent = '▶';
+                                });
+                        });
                 });
             }
 
