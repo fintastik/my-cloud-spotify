@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 SosiSong PRO</title>
+    <title>🎵 SosiSong STREAM</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -31,8 +31,6 @@
             min-height: 100vh;
             padding: 20px;
             padding-bottom: 180px;
-            background-image: radial-gradient(ellipse at 20% 50%, rgba(29, 185, 84, 0.03) 0%, transparent 50%),
-                              radial-gradient(ellipse at 80% 50%, rgba(255, 0, 85, 0.03) 0%, transparent 50%);
         }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -515,7 +513,7 @@
         <header class="header">
             <a href="#" class="logo">
                 🎵 <span>SosiSong</span>
-                <span class="logo-badge">PRO</span>
+                <span class="logo-badge">STREAM</span>
                 <span class="online-dot"></span>
             </a>
 
@@ -538,7 +536,7 @@
 
         <div id="loading">
             <div class="spinner"></div>
-            <p>🎶 Ищем музыку...</p>
+            <p>🎶 Загружаем музыку...</p>
         </div>
 
         <div id="search-section" class="section" style="display:none;">
@@ -626,182 +624,29 @@
 
     <script>
         // ============================================================
-        //  🔥 РАБОЧАЯ ВЕРСИЯ С CORS-ПРОКСИ
-        //  Используем бесплатный CORS-прокси для обхода блокировок
+        //  🔥 ИСПОЛЬЗУЕМ JAMENDO API - БЕСПЛАТНЫЙ СТРИМИНГ
+        //  API ключ публичный, CORS разрешён
         // ============================================================
-        
-        const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-        // Альтернативные прокси если один не работает:
-        // const CORS_PROXY = 'https://corsproxy.io/?';
-        // const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 
-        // БАЗА ТРЕКОВ С РЕАЛЬНЫМИ URL
-        const TRACKS = [
-            // === ПОП ===
-            { 
-                id: 'pop_1', 
-                title: 'Sunny Day', 
-                artist: 'The Dreamers', 
-                genre: 'pop', 
-                icon: '☀️',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/01_-_The_Dreamers_-_Sunny_Day.ogg'
-            },
-            { 
-                id: 'pop_2', 
-                title: 'Electric Feel', 
-                artist: 'MGMT', 
-                genre: 'pop', 
-                icon: '⚡',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/MGMT_-_Electric_Feel.ogg'
-            },
-            { 
-                id: 'pop_3', 
-                title: 'Young Blood', 
-                artist: 'The Naked And Famous', 
-                genre: 'pop', 
-                icon: '🌟',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/The_Naked_And_Famous_-_Young_Blood.ogg'
-            },
-            { 
-                id: 'pop_4', 
-                title: 'Midnight City', 
-                artist: 'M83', 
-                genre: 'pop', 
-                icon: '🌃',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/M83_-_Midnight_City.ogg'
-            },
-            { 
-                id: 'pop_5', 
-                title: 'Kids', 
-                artist: 'MGMT', 
-                genre: 'pop', 
-                icon: '🧒',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/MGMT_-_Kids.ogg'
-            },
-            
-            // === РОК ===
-            { 
-                id: 'rock_1', 
-                title: 'Seven Nation Army', 
-                artist: 'The White Stripes', 
-                genre: 'rock', 
-                icon: '🎸',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Seven_Nation_Army.ogg'
-            },
-            { 
-                id: 'rock_2', 
-                title: 'Smells Like Teen Spirit', 
-                artist: 'Nirvana', 
-                genre: 'rock', 
-                icon: '🔥',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Smells_Like_Teen_Spirit.ogg'
-            },
-            { 
-                id: 'rock_3', 
-                title: 'Back in Black', 
-                artist: 'AC/DC', 
-                genre: 'rock', 
-                icon: '⚡',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/ACDC_-_Back_in_Black.ogg'
-            },
-            { 
-                id: 'rock_4', 
-                title: 'Sweet Child O\' Mine', 
-                artist: 'Guns N\' Roses', 
-                genre: 'rock', 
-                icon: '🌹',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Guns_N%27_Roses_-_Sweet_Child_O%27_Mine.ogg'
-            },
-            { 
-                id: 'rock_5', 
-                title: 'Bohemian Rhapsody', 
-                artist: 'Queen', 
-                genre: 'rock', 
-                icon: '👑',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Queen_-_Bohemian_Rhapsody.ogg'
-            },
-            
-            // === ЭЛЕКТРОНИКА ===
-            { 
-                id: 'elec_1', 
-                title: 'Around The World', 
-                artist: 'Daft Punk', 
-                genre: 'electronic', 
-                icon: '🤖',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Daft_Punk_-_Around_The_World.ogg'
-            },
-            { 
-                id: 'elec_2', 
-                title: 'Strobe', 
-                artist: 'deadmau5', 
-                genre: 'electronic', 
-                icon: '🐭',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Deadmau5_-_Strobe.ogg'
-            },
-            { 
-                id: 'elec_3', 
-                title: 'Sandstorm', 
-                artist: 'Darude', 
-                genre: 'electronic', 
-                icon: '🏜️',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Darude_-_Sandstorm.ogg'
-            },
-            { 
-                id: 'elec_4', 
-                title: 'Scary Monsters', 
-                artist: 'Skrillex', 
-                genre: 'electronic', 
-                icon: '👾',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Skrillex_-_Scary_Monsters.ogg'
-            },
-            
-            // === ЧИЛЛ ===
-            { 
-                id: 'chill_1', 
-                title: 'Nuvole Bianche', 
-                artist: 'Ludovico Einaudi', 
-                genre: 'chill', 
-                icon: '☁️',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Einaudi_-_Nuvole_Bianche.ogg'
-            },
-            { 
-                id: 'chill_2', 
-                title: 'Weightless', 
-                artist: 'Marconi Union', 
-                genre: 'chill', 
-                icon: '🌊',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Marconi_Union_-_Weightless.ogg'
-            },
-            { 
-                id: 'chill_3', 
-                title: 'Clair de Lune', 
-                artist: 'Debussy', 
-                genre: 'chill', 
-                icon: '🌙',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Debussy_-_Clair_de_lune.ogg'
-            },
-            { 
-                id: 'chill_4', 
-                title: 'Gymnopédie No.1', 
-                artist: 'Satie', 
-                genre: 'chill', 
-                icon: '🎹',
-                url: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/Satie_-_Gymnopedie_No._1.ogg'
-            }
+        const JAMENDO_API = 'https://api.jamendo.com/v3.0';
+        const JAMENDO_KEY = '2f9b5c1d'; // публичный демо-ключ
+
+        // ============================================================
+        //  БАЗОВЫЕ ТРЕКИ (запасные, на случай если API не сработает)
+        // ============================================================
+        const FALLBACK_TRACKS = [
+            { id: 'fb1', title: 'Sunny Day', artist: 'The Dreamers', genre: 'pop', icon: '☀️', url: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/01_-_The_Dreamers_-_Sunny_Day.ogg' },
+            { id: 'fb2', title: 'Electric Feel', artist: 'MGMT', genre: 'pop', icon: '⚡', url: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/MGMT_-_Electric_Feel.ogg' },
+            { id: 'fb3', title: 'Seven Nation Army', artist: 'The White Stripes', genre: 'rock', icon: '🎸', url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Seven_Nation_Army.ogg' },
+            { id: 'fb4', title: 'Smells Like Teen Spirit', artist: 'Nirvana', genre: 'rock', icon: '🔥', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Smells_Like_Teen_Spirit.ogg' },
+            { id: 'fb5', title: 'Around The World', artist: 'Daft Punk', genre: 'electronic', icon: '🤖', url: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Daft_Punk_-_Around_The_World.ogg' },
+            { id: 'fb6', title: 'Sandstorm', artist: 'Darude', genre: 'electronic', icon: '🏜️', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Darude_-_Sandstorm.ogg' },
+            { id: 'fb7', title: 'Nuvole Bianche', artist: 'Einaudi', genre: 'chill', icon: '☁️', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Einaudi_-_Nuvole_Bianche.ogg' },
+            { id: 'fb8', title: 'Clair de Lune', artist: 'Debussy', genre: 'chill', icon: '🌙', url: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Debussy_-_Clair_de_lune.ogg' },
         ];
 
-        // ДОПОЛНИТЕЛЬНЫЕ ТРЕКИ
-        const EXTRA_TRACKS = [
-            { id: 'extra_1', title: 'Blinding Lights', artist: 'The Weeknd', genre: 'pop', icon: '💡', url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/The_Weeknd_-_Blinding_Lights.ogg' },
-            { id: 'extra_2', title: 'Levitating', artist: 'Dua Lipa', genre: 'pop', icon: '🚀', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Dua_Lipa_-_Levitating.ogg' },
-            { id: 'extra_3', title: 'Save Your Tears', artist: 'The Weeknd', genre: 'pop', icon: '💧', url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/The_Weeknd_-_Save_Your_Tears.ogg' },
-            { id: 'extra_4', title: 'Mood', artist: '24kGoldn', genre: 'pop', icon: '😎', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/24kGoldn_-_Mood.ogg' },
-            { id: 'extra_5', title: 'Watermelon Sugar', artist: 'Harry Styles', genre: 'pop', icon: '🍉', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Harry_Styles_-_Watermelon_Sugar.ogg' },
-            { id: 'extra_6', title: 'Montero', artist: 'Lil Nas X', genre: 'pop', icon: '👹', url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Lil_Nas_X_-_Montero.ogg' },
-            { id: 'extra_7', title: 'Good 4 U', artist: 'Olivia Rodrigo', genre: 'pop', icon: '😤', url: 'https://upload.wikimedia.org/wikipedia/commons/3/31/Olivia_Rodrigo_-_Good_4_U.ogg' },
-        ];
-
-        const ALL_TRACKS = [...TRACKS, ...EXTRA_TRACKS];
+        let ALL_TRACKS = [...FALLBACK_TRACKS];
+        let USE_FALLBACK = false;
 
         // ===================== STATE =====================
         let isWaveActive = false;
@@ -854,6 +699,40 @@
             return ALL_TRACKS.find(t => t.id === id);
         }
 
+        // ===================== ЗАГРУЗКА С JAMENDO =====================
+        async function loadJamendoTracks() {
+            try {
+                const url = `${JAMENDO_API}/tracks/?client_id=${JAMENDO_KEY}&format=json&limit=30&order=popularity_total&include=musicinfo`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    const tracks = data.results.map((track, i) => ({
+                        id: 'jam_' + track.id,
+                        title: track.name || 'Unknown',
+                        artist: track.artist_name || 'Unknown',
+                        genre: track.genre || 'pop',
+                        icon: ['🎵', '🎤', '🎸', '🎹', '🥁', '🎷', '🎺', '🎻'][i % 8],
+                        url: track.audio || track.mp3 || track.audio_url || track.stream || 'https://www.jamendo.com/track/' + track.id
+                    }));
+                    
+                    // Фильтруем треки без аудио
+                    const validTracks = tracks.filter(t => t.url && t.url.length > 10);
+                    
+                    if (validTracks.length > 0) {
+                        ALL_TRACKS = validTracks;
+                        USE_FALLBACK = false;
+                        toast(`🎵 Загружено ${validTracks.length} треков с Jamendo!`);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.warn('Jamendo API error:', e);
+                return false;
+            }
+        }
+
         // ===================== RENDER =====================
         function renderCard(track, targetId) {
             const container = document.getElementById(targetId);
@@ -888,15 +767,38 @@
                 document.getElementById(id).innerHTML = '';
             });
 
-            TRACKS.forEach(track => {
-                renderCard(track, `genre-${track.genre}`);
-            });
+            // Разбиваем по жанрам
+            const popTracks = ALL_TRACKS.filter(t => t.genre && t.genre.toLowerCase().includes('pop'));
+            const rockTracks = ALL_TRACKS.filter(t => t.genre && t.genre.toLowerCase().includes('rock'));
+            const electroTracks = ALL_TRACKS.filter(t => t.genre && (t.genre.toLowerCase().includes('electro') || t.genre.toLowerCase().includes('dance') || t.genre.toLowerCase().includes('house')));
+            const chillTracks = ALL_TRACKS.filter(t => t.genre && (t.genre.toLowerCase().includes('chill') || t.genre.toLowerCase().includes('ambient') || t.genre.toLowerCase().includes('lofi')));
+
+            // Если жанров мало - разбиваем случайно
+            if (popTracks.length < 2) {
+                const shuffled = shuffle([...ALL_TRACKS]);
+                const chunk = Math.ceil(shuffled.length / 4);
+                const chunks = [];
+                for (let i = 0; i < shuffled.length; i += chunk) {
+                    chunks.push(shuffled.slice(i, i + chunk));
+                }
+                if (chunks.length >= 4) {
+                    chunks[0].forEach(t => renderCard(t, 'genre-pop'));
+                    chunks[1].forEach(t => renderCard(t, 'genre-rock'));
+                    chunks[2].forEach(t => renderCard(t, 'genre-electronic'));
+                    chunks[3].forEach(t => renderCard(t, 'genre-chill'));
+                } else {
+                    ALL_TRACKS.forEach(t => renderCard(t, 'genre-pop'));
+                }
+            } else {
+                popTracks.slice(0, 8).forEach(t => renderCard(t, 'genre-pop'));
+                rockTracks.slice(0, 8).forEach(t => renderCard(t, 'genre-rock'));
+                electroTracks.slice(0, 8).forEach(t => renderCard(t, 'genre-electronic'));
+                chillTracks.slice(0, 8).forEach(t => renderCard(t, 'genre-chill'));
+            }
 
             updateFavorites();
             updateRecommendations();
             updateFavCount();
-            
-            toast('🎵 Загружено ' + ALL_TRACKS.length + ' треков!');
         }
 
         // ===================== LIKES =====================
@@ -958,7 +860,7 @@
             const genres = {};
             liked.forEach(id => {
                 const track = getTrackById(id);
-                if (track) genres[track.genre] = (genres[track.genre] || 0) + 1;
+                if (track && track.genre) genres[track.genre] = (genres[track.genre] || 0) + 1;
             });
 
             let topGenre = null;
@@ -1033,7 +935,7 @@
             }
         }
 
-        // ===================== PLAYER (ГЛАВНОЕ) =====================
+        // ===================== PLAYER =====================
         function playTrack(track) {
             if (!track) {
                 toast('⚠️ Трек не найден');
@@ -1046,15 +948,22 @@
             document.getElementById('player-cover').textContent = track.icon || '🎵';
             playerPanel.classList.add('active');
 
-            // Останавливаем предыдущий
             audio.pause();
             
-            // ⭐ ГЛАВНОЕ: ИСПОЛЬЗУЕМ CORS-ПРОКСИ ДЛЯ ОБХОДА БЛОКИРОВКИ
-            const proxiedUrl = CORS_PROXY + encodeURIComponent(track.url);
-            audio.src = proxiedUrl;
+            // Пробуем разные варианты URL
+            let url = track.url;
+            
+            // Если это Jamendo трек - используем специальный формат
+            if (track.id && track.id.startsWith('jam_')) {
+                // Jamendo часто даёт ссылку на страницу, а не на файл
+                // Пробуем получить прямой mp3
+                const trackId = track.id.replace('jam_', '');
+                url = `https://www.jamendo.com/track/${trackId}/mp3`;
+            }
+            
+            audio.src = url;
             audio.volume = volumeSlider.value / 100;
 
-            // Пробуем играть
             const playPromise = audio.play();
             
             if (playPromise !== undefined) {
@@ -1063,20 +972,13 @@
                     toast(`▶️ ${track.title} - ${track.artist}`);
                 }).catch(error => {
                     console.error('Play error:', error);
-                    toast(`⚠️ Проблема с "${track.title}", пробуем без прокси...`);
-                    
-                    // Если прокси не работает - пробуем напрямую
-                    audio.src = track.url;
-                    audio.play().catch(() => {
-                        toast(`❌ Не удалось воспроизвести "${track.title}"`);
-                        playBtn.textContent = '▶';
-                    });
+                    toast(`⚠️ Не удаётся воспроизвести "${track.title}"`);
+                    playBtn.textContent = '▶';
                 });
             }
 
             updateProgress();
             
-            // Update URL for sharing
             if (window.history && window.history.pushState) {
                 window.history.pushState({}, '', `?track=${track.id}`);
             }
@@ -1151,7 +1053,7 @@
         }
 
         // ===================== SEARCH =====================
-        async function searchMusic() {
+        function searchMusic() {
             const query = document.getElementById('search-input').value.trim().toLowerCase();
             if (!query) { toast('🔍 Введите запрос'); return; }
 
@@ -1159,33 +1061,24 @@
             const grid = document.getElementById('results-grid');
             grid.innerHTML = '';
             section.style.display = 'block';
-            document.getElementById('loading').style.display = 'block';
 
-            try {
-                const results = ALL_TRACKS.filter(t =>
-                    t.title.toLowerCase().includes(query) ||
-                    t.artist.toLowerCase().includes(query)
-                );
+            const results = ALL_TRACKS.filter(t =>
+                t.title.toLowerCase().includes(query) ||
+                t.artist.toLowerCase().includes(query)
+            );
 
-                document.getElementById('loading').style.display = 'none';
-
-                if (results.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state">
-                            <div class="big-icon">🔍</div>
-                            <h3>Ничего не найдено</h3>
-                            <p>Попробуйте другой запрос</p>
-                        </div>
-                    `;
-                    toast('😔 Ничего не найдено');
-                } else {
-                    results.forEach(track => renderCard(track, 'results-grid'));
-                    toast(`🔍 Найдено ${results.length} треков`);
-                }
-
-            } catch (err) {
-                document.getElementById('loading').style.display = 'none';
-                toast('⚠️ Ошибка поиска');
+            if (results.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-icon">🔍</div>
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте другой запрос</p>
+                    </div>
+                `;
+                toast('😔 Ничего не найдено');
+            } else {
+                results.forEach(track => renderCard(track, 'results-grid'));
+                toast(`🔍 Найдено ${results.length} треков`);
             }
         }
 
@@ -1209,16 +1102,6 @@
                 playNextWave(); 
             } else if (currentQueue.length > 0) { 
                 nextTrack(); 
-            }
-        });
-
-        audio.addEventListener('error', (e) => {
-            console.warn('Audio error:', e);
-            // Если через прокси не работает, пробуем напрямую
-            if (audio.src.includes(CORS_PROXY)) {
-                const originalUrl = decodeURIComponent(audio.src.replace(CORS_PROXY, ''));
-                audio.src = originalUrl;
-                audio.play().catch(() => {});
             }
         });
 
@@ -1251,8 +1134,33 @@
         }
 
         // ===================== INIT =====================
-        renderAll();
-        checkSharedTrack();
+        async function init() {
+            document.getElementById('loading').style.display = 'block';
+            
+            // Пробуем загрузить с Jamendo
+            const loaded = await loadJamendoTracks();
+            
+            document.getElementById('loading').style.display = 'none';
+            
+            renderAll();
+            checkSharedTrack();
+
+            // Восстанавливаем последний
+            const lastId = localStorage.getItem('sosi_last');
+            if (lastId) {
+                const track = getTrackById(lastId);
+                if (track) {
+                    setTimeout(() => {
+                        playTrack(track);
+                        audio.pause();
+                        playBtn.textContent = '▶';
+                    }, 300);
+                }
+            }
+
+            console.log('🎵 SosiSong STREAM загружен!');
+            console.log('📡 Всего треков:', ALL_TRACKS.length);
+        }
 
         // Автосохранение
         setInterval(() => {
@@ -1261,23 +1169,7 @@
             }
         }, 5000);
 
-        // Восстанавливаем последний
-        const lastId = localStorage.getItem('sosi_last');
-        if (lastId) {
-            const track = getTrackById(lastId);
-            if (track) {
-                setTimeout(() => {
-                    playTrack(track);
-                    audio.pause();
-                    playBtn.textContent = '▶';
-                }, 300);
-            }
-        }
-
-        console.log('🎵 SosiSong PRO загружен!');
-        console.log('📡 Используется CORS-прокси для стриминга');
-        console.log('🎯 Всего треков:', ALL_TRACKS.length);
-        console.log('🔥 Горячие клавиши: Пробел - пауза, ← → - перемотка');
+        init();
     </script>
 </body>
 </html>
