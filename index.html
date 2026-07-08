@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone 24/7</title>
+    <style>
+        :root {
+            --bg-base: #121212; --bg-surface: #181818; --bg-card: #242424;
+            --primary: #1DB954; --text-main: #FFFFFF; --text-muted: #A7A7A7;
+        }
+        body { font-family: Arial, sans-serif; background-color: var(--bg-base); color: var(--text-main); margin: 0; padding: 20px; padding-bottom: 120px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        h1 { font-size: 28px; font-weight: 800; margin: 0; }
+        h1 span { color: var(--primary); }
+        .search-box { display: flex; background: #2A2A2A; border-radius: 50px; padding: 6px 12px; width: 100%; max-width: 400px; }
+        input { flex: 1; padding: 8px; border: none; background: transparent; outline: none; font-size: 15px; color: white; }
+        button { padding: 8px 24px; border: none; background-color: var(--primary); color: white; border-radius: 50px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        h2 { font-size: 20px; margin-top: 30px; margin-bottom: 15px; }
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+        .track-card { background: var(--bg-surface); padding: 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .track-card:hover { background: var(--bg-card); transform: translateY(-4px); }
+        .track-pic { width: 100%; aspect-ratio: 1; border-radius: 6px; margin-bottom: 12px; object-fit: cover; }
+        .track-title { font-weight: 700; font-size: 14px; margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+        .track-desc { font-size: 12px; color: var(--text-muted); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+        #loading { display: none; text-align: center; color: var(--text-muted); margin: 20px 0; }
+        .player-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #181818; padding: 16px 30px; display: none; border-top: 1px solid #282828; z-index: 100; }
+        .player-container { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+        #current-title { font-weight: 700; color: var(--primary); margin: 0 0 8px 0; font-size: 14px; text-align: center; }
+        audio { width: 100%; max-width: 600px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>Music<span>Stream</span></h1>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Введите песню или артиста...">
+                <button onclick="searchMusic()">Поиск</button>
+            </div>
+        </div>
+        <div id="loading">🎵 Ищем оригинальный трек в глобальной базе...</div>
+        <div id="search-results-section" style="display: none;">
+            <h2>Результаты поиска</h2>
+            <div id="results" class="grid-layout"></div>
+        </div>
+        <h2>Популярно у друзей 🔥</h2>
+        <div class="grid-layout" id="trending"></div>
+    </div>
+    <div id="player-panel" class="player-panel">
+        <div class="player-container">
+            <p id="current-title">Название трека</p>
+            <audio id="audio-player" controls autoplay></audio>
+        </div>
+    </div>
+    <script>
+        // Стабильный, вечный и бесплатный CORS-прокси без ограничений
+        const proxy = "https://allorigins.win";
+
+        async function searchMusic() {
+            const query = document.getElementById('search-input').value;
+            if (!query) return;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('search-results-section').style.display = 'block';
+            document.getElementById('results').innerHTML = '';
+            
+            try {
+                const target = `https://deezer.com{encodeURIComponent(query)}&limit=6`;
+                const res = await fetch(proxy + encodeURIComponent(target));
+                const raw = await res.json();
+                const data = JSON.parse(raw.contents);
+                
+                document.getElementById('loading').style.display = 'none';
+                (data.data || []).forEach(item => {
+                    createCard(item, 'results');
+                });
+            } catch (err) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Ошибка сети. Попробуйте еще раз.');
+            }
+        }
+
+        function createCard(item, targetId) {
+            const card = document.createElement('div');
+            card.className = 'track-card';
+            card.onclick = () => playTrack(`${item.artist.name} - ${item.title}`, item.preview);
+            card.innerHTML = `
+                <img class="track-pic" src="${item.album.cover_medium}" alt="cover">
+                <p class="track-title">${item.title}</p>
+                <p class="track-desc">${item.artist.name}</p>
+            `;
+            document.getElementById(targetId).appendChild(card);
+        }
+
+        function playTrack(title, url) {
+            document.getElementById('current-title').innerText = title;
+            const player = document.getElementById('audio-player');
+            player.src = url;
+            document.getElementById('player-panel').style.display = 'block';
+            player.play();
+        }
+
+        // Загрузка треков "Популярно" при старте
+        async function loadTrending() {
+            try {
+                const res = await fetch(proxy + encodeURIComponent("https://deezer.com"));
+                const raw = await res.json();
+                const data = JSON.parse(raw.contents);
+                (data.data || []).forEach(item => createCard(item, 'trending'));
+            } catch(e) {}
+        }
+        loadTrending();
+
+        document.getElementById('search-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchMusic(); });
+    </script>
+</body>
+</html>
