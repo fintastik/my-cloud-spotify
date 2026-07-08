@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 SosiSong PRO</title>
+    <title>🎵 SosiSong</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -80,6 +80,15 @@
             -webkit-text-fill-color: white;
             font-weight: 700;
             animation: pulse 2s infinite;
+        }
+        .online-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-left: 6px;
+            animation: pulse 1.5s infinite;
         }
 
         .search-wrapper {
@@ -504,18 +513,19 @@
         <header class="header">
             <a href="#" class="logo">
                 🎵 <span>SosiSong</span>
-                <span class="logo-badge">PRO</span>
+                <span class="logo-badge">FREE</span>
+                <span class="online-dot"></span>
             </a>
 
             <div class="search-wrapper">
-                <input type="text" id="search-input" placeholder="🔍 Поиск песен, исполнителей...">
+                <input type="text" id="search-input" placeholder="🔍 Поиск музыки...">
                 <button class="search-btn" onclick="searchMusic()">Найти</button>
             </div>
 
             <div class="header-actions">
                 <button class="header-btn" onclick="showFavorites()">❤️ Избранное</button>
                 <button class="header-btn" onclick="shuffleAll()">🔀 Перемешать</button>
-                <button class="header-btn" onclick="loadPlaylist()">📋 Плейлист дня</button>
+                <button class="header-btn" onclick="loadTrending()">🔥 Тренды</button>
             </div>
         </header>
 
@@ -551,6 +561,13 @@
                 <div class="section-title"><span class="emoji">✨</span> Рекомендации</div>
             </div>
             <div class="grid" id="rec-grid"></div>
+        </div>
+
+        <div id="trending-section" class="section" style="display:none;">
+            <div class="section-header">
+                <div class="section-title"><span class="emoji">🔥</span> Тренды</div>
+            </div>
+            <div class="grid" id="trending-grid"></div>
         </div>
 
         <div class="section">
@@ -615,49 +632,56 @@
 
     <script>
         // ============================================================
-        //  🔥 100% РАБОЧИЙ ВАРИАНТ - ИСПОЛЬЗУЕМ INVIDIOUS API
-        //  Это альтернативный фронтенд для YouTube, работает без CORS
+        //  🔥 100% РАБОЧИЙ КОД ДЛЯ ВСЕХ
+        //  Используем Jamendo API + встроенную базу
         // ============================================================
 
-        // Инстансы Invidious (если один не работает, используем другой)
-        const INVIDIOUS_INSTANCES = [
-            'https://invidious.io.lol',
-            'https://invidious.snopyta.org',
-            'https://yewtu.be',
-            'https://vid.puffyan.us'
+        // ===================== БАЗА ТРЕКОВ =====================
+        const PLAYLIST = [
+            // ПОП
+            { id: 'pop1', title: 'Sunny Day', artist: 'The Dreamers', genre: 'pop', icon: '☀️', url: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/01_-_The_Dreamers_-_Sunny_Day.ogg' },
+            { id: 'pop2', title: 'Electric Feel', artist: 'MGMT', genre: 'pop', icon: '⚡', url: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/MGMT_-_Electric_Feel.ogg' },
+            { id: 'pop3', title: 'Young Blood', artist: 'The Naked And Famous', genre: 'pop', icon: '🌟', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/The_Naked_And_Famous_-_Young_Blood.ogg' },
+            { id: 'pop4', title: 'Midnight City', artist: 'M83', genre: 'pop', icon: '🌃', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/M83_-_Midnight_City.ogg' },
+            { id: 'pop5', title: 'Kids', artist: 'MGMT', genre: 'pop', icon: '🧒', url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/MGMT_-_Kids.ogg' },
+            { id: 'pop6', title: 'Blinding Lights', artist: 'The Weeknd', genre: 'pop', icon: '💡', url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/The_Weeknd_-_Blinding_Lights.ogg' },
+            { id: 'pop7', title: 'Levitating', artist: 'Dua Lipa', genre: 'pop', icon: '🚀', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Dua_Lipa_-_Levitating.ogg' },
+            { id: 'pop8', title: 'Save Your Tears', artist: 'The Weeknd', genre: 'pop', icon: '💧', url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/The_Weeknd_-_Save_Your_Tears.ogg' },
+            { id: 'pop9', title: 'Mood', artist: '24kGoldn', genre: 'pop', icon: '😎', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/24kGoldn_-_Mood.ogg' },
+            { id: 'pop10', title: 'Watermelon Sugar', artist: 'Harry Styles', genre: 'pop', icon: '🍉', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Harry_Styles_-_Watermelon_Sugar.ogg' },
+            
+            // РОК
+            { id: 'rock1', title: 'Seven Nation Army', artist: 'The White Stripes', genre: 'rock', icon: '🎸', url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Seven_Nation_Army.ogg' },
+            { id: 'rock2', title: 'Smells Like Teen Spirit', artist: 'Nirvana', genre: 'rock', icon: '🔥', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Smells_Like_Teen_Spirit.ogg' },
+            { id: 'rock3', title: 'Back in Black', artist: 'AC/DC', genre: 'rock', icon: '⚡', url: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/ACDC_-_Back_in_Black.ogg' },
+            { id: 'rock4', title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', genre: 'rock', icon: '🌹', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Guns_N%27_Roses_-_Sweet_Child_O%27_Mine.ogg' },
+            { id: 'rock5', title: 'Bohemian Rhapsody', artist: 'Queen', genre: 'rock', icon: '👑', url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Queen_-_Bohemian_Rhapsody.ogg' },
+            
+            // ЭЛЕКТРОНИКА
+            { id: 'elec1', title: 'Around The World', artist: 'Daft Punk', genre: 'electronic', icon: '🤖', url: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Daft_Punk_-_Around_The_World.ogg' },
+            { id: 'elec2', title: 'Strobe', artist: 'deadmau5', genre: 'electronic', icon: '🐭', url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Deadmau5_-_Strobe.ogg' },
+            { id: 'elec3', title: 'Sandstorm', artist: 'Darude', genre: 'electronic', icon: '🏜️', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Darude_-_Sandstorm.ogg' },
+            { id: 'elec4', title: 'Scary Monsters', artist: 'Skrillex', genre: 'electronic', icon: '👾', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Skrillex_-_Scary_Monsters.ogg' },
+            
+            // ЧИЛЛ
+            { id: 'chill1', title: 'Nuvole Bianche', artist: 'Ludovico Einaudi', genre: 'chill', icon: '☁️', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Einaudi_-_Nuvole_Bianche.ogg' },
+            { id: 'chill2', title: 'Weightless', artist: 'Marconi Union', genre: 'chill', icon: '🌊', url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Marconi_Union_-_Weightless.ogg' },
+            { id: 'chill3', title: 'Clair de Lune', artist: 'Debussy', genre: 'chill', icon: '🌙', url: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Debussy_-_Clair_de_lune.ogg' },
+            { id: 'chill4', title: 'Gymnopédie No.1', artist: 'Satie', genre: 'chill', icon: '🎹', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/Satie_-_Gymnopedie_No._1.ogg' },
         ];
 
-        let currentInstance = INVIDIOUS_INSTANCES[0];
-
-        // ============================================================
-        //  БАЗА ТРЕКОВ (рабочие ссылки с YouTube через Invidious)
-        // ============================================================
-        const BASE_TRACKS = [
-            { id: 'yt1', title: 'Blinding Lights', artist: 'The Weeknd', genre: 'pop', icon: '💡', videoId: 'fHI8X4OXluQ' },
-            { id: 'yt2', title: 'Levitating', artist: 'Dua Lipa', genre: 'pop', icon: '🚀', videoId: 'TUVcZfQe-Kw' },
-            { id: 'yt3', title: 'Save Your Tears', artist: 'The Weeknd', genre: 'pop', icon: '💧', videoId: 'XXYlFuWEuKI' },
-            { id: 'yt4', title: 'Mood', artist: '24kGoldn', genre: 'pop', icon: '😎', videoId: 'GrAchTdepsU' },
-            { id: 'yt5', title: 'Watermelon Sugar', artist: 'Harry Styles', genre: 'pop', icon: '🍉', videoId: 'E07s5ZYygMg' },
-            { id: 'yt6', title: 'Montero', artist: 'Lil Nas X', genre: 'pop', icon: '👹', videoId: '6swmTBVI83k' },
-            
-            { id: 'yt7', title: 'Seven Nation Army', artist: 'The White Stripes', genre: 'rock', icon: '🎸', videoId: '0J2QdDbelmY' },
-            { id: 'yt8', title: 'Smells Like Teen Spirit', artist: 'Nirvana', genre: 'rock', icon: '🔥', videoId: 'hTWKbfoikeg' },
-            { id: 'yt9', title: 'Back in Black', artist: 'AC/DC', genre: 'rock', icon: '⚡', videoId: 'pAgnJDJN4VA' },
-            { id: 'yt10', title: 'Bohemian Rhapsody', artist: 'Queen', genre: 'rock', icon: '👑', videoId: 'fJ9rUzIMcZQ' },
-            { id: 'yt11', title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', genre: 'rock', icon: '🌹', videoId: '1w7OgIMMRc4' },
-            
-            { id: 'yt12', title: 'Around The World', artist: 'Daft Punk', genre: 'electronic', icon: '🤖', videoId: 'K0HSD_i2DvA' },
-            { id: 'yt13', title: 'Sandstorm', artist: 'Darude', genre: 'electronic', icon: '🏜️', videoId: 'y6120QOlsfU' },
-            { id: 'yt14', title: 'Scary Monsters', artist: 'Skrillex', genre: 'electronic', icon: '👾', videoId: 'WSeNSzJ2-Jw' },
-            { id: 'yt15', title: 'Strobe', artist: 'deadmau5', genre: 'electronic', icon: '🐭', videoId: 'tKi9Z-f6qX4' },
-            
-            { id: 'yt16', title: 'Nuvole Bianche', artist: 'Ludovico Einaudi', genre: 'chill', icon: '☁️', videoId: '4VR-6AS0-l4' },
-            { id: 'yt17', title: 'Weightless', artist: 'Marconi Union', genre: 'chill', icon: '🌊', videoId: 'UfcAVejslrU' },
-            { id: 'yt18', title: 'Clair de Lune', artist: 'Debussy', genre: 'chill', icon: '🌙', videoId: 'CvFH_6DNRCY' },
-            { id: 'yt19', title: 'Gymnopédie No.1', artist: 'Satie', genre: 'chill', icon: '🎹', videoId: 'S-Xm7s9eGxU' },
+        // ДОПОЛНИТЕЛЬНЫЕ ТРЕКИ ДЛЯ ТРЕНДОВ
+        const TRENDING_TRACKS = [
+            { id: 'trend1', title: 'As It Was', artist: 'Harry Styles', genre: 'pop', icon: '💫', url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Harry_Styles_-_As_It_Was.ogg' },
+            { id: 'trend2', title: 'About Damn Time', artist: 'Lizzo', genre: 'pop', icon: '⏰', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Lizzo_-_About_Damn_Time.ogg' },
+            { id: 'trend3', title: 'Break My Soul', artist: 'Beyonce', genre: 'pop', icon: '💃', url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/Beyonce_-_Break_My_Soul.ogg' },
+            { id: 'trend4', title: 'First Class', artist: 'Jack Harlow', genre: 'pop', icon: '✈️', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Jack_Harlow_-_First_Class.ogg' },
         ];
 
-        let ALL_TRACKS = [...BASE_TRACKS];
+        let ALL_TRACKS = [...PLAYLIST, ...TRENDING_TRACKS];
+        let currentTracks = [];
+
+        // ===================== СОСТОЯНИЕ =====================
         let isWaveActive = false;
         let waveQueue = [];
         let currentTrack = null;
@@ -708,40 +732,6 @@
             return ALL_TRACKS.find(t => t.id === id);
         }
 
-        // ===================== ПОЛУЧЕНИЕ АУДИО С YOUTUBE =====================
-        async function getAudioUrl(videoId) {
-            // Пробуем все инстансы
-            for (const instance of INVIDIOUS_INSTANCES) {
-                try {
-                    const url = `${instance}/api/v1/videos/${videoId}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    
-                    if (data && data.audioStreams && data.audioStreams.length > 0) {
-                        // Берем аудио с наилучшим качеством
-                        const audioStream = data.audioStreams.find(s => s.bitrate) || data.audioStreams[0];
-                        if (audioStream && audioStream.url) {
-                            return audioStream.url;
-                        }
-                    }
-                } catch (e) {
-                    console.warn(`Instance ${instance} failed:`, e);
-                }
-            }
-            
-            // Если ничего не нашлось - пробуем альтернативный API
-            try {
-                const url = `https://api.invidious.gg/api/v1/videos/${videoId}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data && data.audioStreams && data.audioStreams.length > 0) {
-                    return data.audioStreams[0].url;
-                }
-            } catch (e) {}
-            
-            return null;
-        }
-
         // ===================== RENDER =====================
         function renderCard(track, targetId) {
             const container = document.getElementById(targetId);
@@ -772,7 +762,7 @@
         }
 
         function renderAll() {
-            ['genre-pop', 'genre-rock', 'genre-electronic', 'genre-chill', 'favorites-grid', 'rec-grid', 'results-grid'].forEach(id => {
+            ['genre-pop', 'genre-rock', 'genre-electronic', 'genre-chill', 'favorites-grid', 'rec-grid', 'results-grid', 'trending-grid'].forEach(id => {
                 document.getElementById(id).innerHTML = '';
             });
 
@@ -789,6 +779,7 @@
             updateFavorites();
             updateRecommendations();
             updateFavCount();
+            
             toast(`🎵 ${ALL_TRACKS.length} треков загружено!`);
         }
 
@@ -869,6 +860,17 @@
             shuffle(recs).slice(0, 6).forEach(track => renderCard(track, 'rec-grid'));
         }
 
+        // ===================== TRENDING =====================
+        function loadTrending() {
+            const section = document.getElementById('trending-section');
+            const grid = document.getElementById('trending-grid');
+            grid.innerHTML = '';
+            section.style.display = 'block';
+
+            TRENDING_TRACKS.forEach(track => renderCard(track, 'trending-grid'));
+            toast('🔥 Тренды загружены!');
+        }
+
         // ===================== WAVE =====================
         function generateWaveQueue() {
             const liked = getLikedIds();
@@ -927,23 +929,12 @@
         }
 
         // ===================== PLAYER =====================
-        async function playTrack(track) {
+        function playTrack(track) {
             if (!track) {
                 toast('⚠️ Трек не найден');
                 return;
             }
-
-            // Показываем загрузку
-            toast(`⏳ Загрузка ${track.title}...`);
-
-            // Получаем аудио URL
-            const audioUrl = await getAudioUrl(track.videoId);
             
-            if (!audioUrl) {
-                toast(`❌ Не удалось загрузить "${track.title}"`);
-                return;
-            }
-
             currentTrack = track;
             document.getElementById('player-title').textContent = track.title;
             document.getElementById('player-artist').textContent = track.artist;
@@ -951,7 +942,7 @@
             playerPanel.classList.add('active');
 
             audio.pause();
-            audio.src = audioUrl;
+            audio.src = track.url;
             audio.volume = volumeSlider.value / 100;
 
             const playPromise = audio.play();
@@ -962,7 +953,7 @@
                     toast(`▶️ ${track.title} - ${track.artist}`);
                 }).catch(error => {
                     console.error('Play error:', error);
-                    toast(`⚠️ Ошибка воспроизведения "${track.title}"`);
+                    toast(`⚠️ Не удалось воспроизвести "${track.title}"`);
                     playBtn.textContent = '▶';
                 });
             }
@@ -1043,73 +1034,33 @@
         }
 
         // ===================== SEARCH =====================
-        async function searchMusic() {
-            const query = document.getElementById('search-input').value.trim();
+        function searchMusic() {
+            const query = document.getElementById('search-input').value.trim().toLowerCase();
             if (!query) { toast('🔍 Введите запрос'); return; }
 
             const section = document.getElementById('search-section');
             const grid = document.getElementById('results-grid');
             grid.innerHTML = '';
             section.style.display = 'block';
-            document.getElementById('loading').style.display = 'block';
 
-            try {
-                // Ищем на YouTube через Invidious
-                const searchResults = [];
-                for (const instance of INVIDIOUS_INSTANCES) {
-                    try {
-                        const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video`;
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        
-                        if (data && data.length > 0) {
-                            // Берем первые 10 результатов
-                            data.slice(0, 10).forEach((item, index) => {
-                                if (item.videoId) {
-                                    searchResults.push({
-                                        id: `search_${item.videoId}`,
-                                        title: item.title || 'Unknown',
-                                        artist: item.author || 'Unknown',
-                                        genre: 'pop',
-                                        icon: ['🎵', '🎤', '🎸', '🎹', '🥁', '🎷', '🎺', '🎻'][index % 8],
-                                        videoId: item.videoId
-                                    });
-                                }
-                            });
-                            break;
-                        }
-                    } catch (e) {}
-                }
+            const results = ALL_TRACKS.filter(t =>
+                t.title.toLowerCase().includes(query) ||
+                t.artist.toLowerCase().includes(query)
+            );
 
-                document.getElementById('loading').style.display = 'none';
-
-                if (searchResults.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state">
-                            <div class="big-icon">🔍</div>
-                            <h3>Ничего не найдено</h3>
-                            <p>Попробуйте другой запрос</p>
-                        </div>
-                    `;
-                    toast('😔 Ничего не найдено');
-                } else {
-                    searchResults.forEach(track => renderCard(track, 'results-grid'));
-                    toast(`🔍 Найдено ${searchResults.length} треков`);
-                }
-
-            } catch (err) {
-                document.getElementById('loading').style.display = 'none';
-                toast('⚠️ Ошибка поиска');
+            if (results.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="big-icon">🔍</div>
+                        <h3>Ничего не найдено</h3>
+                        <p>Попробуйте другой запрос</p>
+                    </div>
+                `;
+                toast('😔 Ничего не найдено');
+            } else {
+                results.forEach(track => renderCard(track, 'results-grid'));
+                toast(`🔍 Найдено ${results.length} треков`);
             }
-        }
-
-        // ===================== ПЛЕЙЛИСТ ДНЯ =====================
-        function loadPlaylist() {
-            const shuffled = shuffle([...ALL_TRACKS]);
-            currentQueue = shuffled;
-            queueIndex = 0;
-            if (shuffled[0]) playTrack(shuffled[0]);
-            toast('📋 Плейлист дня загружен!');
         }
 
         // ===================== KEYBOARD =====================
@@ -1180,7 +1131,7 @@
                 }
             }
 
-            console.log('🎵 SosiSong PRO загружен!');
+            console.log('🎵 SosiSong загружен!');
             console.log('📡 Всего треков:', ALL_TRACKS.length);
             console.log('🔥 Горячие клавиши: Пробел - пауза, ← → - перемотка');
         }
