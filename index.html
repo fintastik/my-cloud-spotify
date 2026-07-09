@@ -1,1138 +1,145 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 SosiSong</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #121212;
-            --bg-card: #1a1a1a;
-            --bg-card-hover: #282828;
-            --primary: #1DB954;
-            --primary-glow: rgba(29, 185, 84, 0.4);
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --text-muted: #6a6a6a;
-            --gradient-1: linear-gradient(135deg, #1DB954, #00ff88);
-            --gradient-2: linear-gradient(135deg, #ff0055, #ff5500, #ffcc00);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            --border: 1px solid #2a2a2a;
-            --radius: 16px;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 180px;
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-
-        .container { max-width: 1400px; margin: 0 auto; }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            background: rgba(18, 18, 18, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: var(--radius);
-            border: var(--border);
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-            position: sticky;
-            top: 20px;
-            z-index: 50;
-            box-shadow: var(--shadow);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 28px;
-            font-weight: 900;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-        .logo span {
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo-badge {
-            font-size: 11px;
-            background: var(--gradient-2);
-            padding: 2px 10px;
-            border-radius: 20px;
-            color: white;
-            -webkit-text-fill-color: white;
-            font-weight: 700;
-            animation: pulse 2s infinite;
-        }
-
-        .search-wrapper {
-            display: flex;
-            align-items: center;
-            background: var(--bg-secondary);
-            border-radius: 50px;
-            padding: 4px 4px 4px 20px;
-            border: var(--border);
-            transition: all 0.3s;
-            max-width: 500px;
-            flex: 1;
-        }
-        .search-wrapper:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 30px var(--primary-glow);
-        }
-        .search-wrapper input {
-            flex: 1;
-            padding: 12px 0;
-            border: none;
-            background: transparent;
-            outline: none;
-            color: var(--text-primary);
-            font-size: 15px;
-            min-width: 120px;
-        }
-        .search-wrapper input::placeholder { color: var(--text-muted); }
-        .search-btn {
-            padding: 10px 28px;
-            border: none;
-            background: var(--gradient-1);
-            color: white;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        .search-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--primary-glow); }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .header-btn {
-            padding: 10px 18px;
-            border: var(--border);
-            background: transparent;
-            color: var(--text-secondary);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .header-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-        .header-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .wave-btn {
-            background: var(--gradient-2);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 20px;
-            font-weight: 800;
-            border-radius: 50px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 35px;
-            transition: all 0.4s;
-            box-shadow: 0 4px 25px rgba(255, 85, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        .wave-btn::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: var(--gradient-2);
-            filter: blur(20px);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-        .wave-btn:hover { transform: translateY(-3px) scale(1.02); }
-        .wave-btn:hover::before { opacity: 0.3; }
-        .wave-btn.active {
-            animation: wavePulse 1.2s infinite alternate;
-            box-shadow: 0 0 50px rgba(29, 185, 84, 0.6);
-        }
-        .wave-btn .badge {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .section { margin-bottom: 40px; }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .section-title {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .section-title .emoji { font-size: 28px; }
-        .section-more {
-            color: var(--text-secondary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: 600;
-        }
-        .section-more:hover { color: var(--primary); }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .track-card {
-            background: var(--bg-card);
-            padding: 16px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: var(--border);
-            position: relative;
-            overflow: hidden;
-            animation: slideUp 0.4s ease forwards;
-        }
-        .track-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            background: var(--bg-card-hover);
-            border-color: var(--primary);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-            z-index: 2;
-        }
-
-        .track-pic {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 12px;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 56px;
-            background: linear-gradient(135deg, #1a1a1a, #252525);
-            position: relative;
-            transition: 0.3s;
-        }
-        .track-card:hover .track-pic { transform: scale(1.03); }
-        .track-pic .play-overlay {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.3s;
-            box-shadow: 0 0 30px var(--primary-glow);
-        }
-        .track-card:hover .play-overlay { opacity: 1; transform: scale(1); }
-
-        .track-title { font-weight: 700; font-size: 15px; margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .track-artist { font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .card-controls {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            display: flex;
-            gap: 6px;
-            z-index: 10;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s;
-        }
-        .track-card:hover .card-controls { opacity: 1; transform: translateY(0); }
-
-        .ctrl-btn {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 50%;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-primary);
-            transition: all 0.2s;
-            border: var(--border);
-        }
-        .ctrl-btn:hover { transform: scale(1.15); background: var(--primary); border-color: var(--primary); }
-        .ctrl-btn.liked { color: #ff2a44; }
-        .ctrl-btn.liked:hover { background: #ff2a44; color: white; }
-
-        .player-panel {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(18, 18, 18, 0.98);
-            backdrop-filter: blur(30px);
-            padding: 16px 30px;
-            border-top: var(--border);
-            z-index: 999;
-            box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.8);
-            display: none;
-        }
-        .player-panel.active { display: block; }
-
-        .player-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            min-width: 200px;
-            flex: 1;
-        }
-        .player-info .cover {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            flex-shrink: 0;
-        }
-        .player-info .meta { overflow: hidden; }
-        .player-info .meta .title { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .player-info .meta .artist { font-size: 13px; color: var(--text-secondary); }
-
-        .player-controls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex: 1;
-            min-width: 200px;
-        }
-        .player-controls .ctrl {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 20px;
-            cursor: pointer;
-            transition: 0.2s;
-            padding: 8px;
-            border-radius: 50%;
-        }
-        .player-controls .ctrl:hover { color: var(--text-primary); background: var(--bg-card); }
-        .player-controls .ctrl.play {
-            width: 48px;
-            height: 48px;
-            background: var(--gradient-1);
-            color: white;
-            border-radius: 50%;
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .player-controls .ctrl.play:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--primary-glow); }
-
-        .player-timeline {
-            flex: 2;
-            min-width: 150px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .player-timeline .time { font-size: 12px; color: var(--text-muted); min-width: 40px; }
-        .player-timeline input[type="range"] {
-            flex: 1;
-            -webkit-appearance: none;
-            height: 4px;
-            border-radius: 10px;
-            background: var(--bg-card);
-            outline: none;
-            transition: 0.2s;
-        }
-        .player-timeline input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-
-        .player-volume {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 120px;
-        }
-        .player-volume input[type="range"] {
-            width: 80px;
-            -webkit-appearance: none;
-            height: 3px;
-            border-radius: 10px;
-            background: var(--bg-card);
-            outline: none;
-        }
-        .player-volume input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-        }
-
-        #loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--bg-card);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @keyframes wavePulse {
-            0% { box-shadow: 0 0 20px rgba(29, 185, 84, 0.3); transform: scale(1); }
-            100% { box-shadow: 0 0 60px rgba(0, 255, 102, 0.6); transform: scale(1.02); }
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 14px 28px;
-            border-radius: 50px;
-            border: var(--border);
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 14px;
-            opacity: 0;
-            transition: all 0.4s;
-            z-index: 1000;
-            pointer-events: none;
-            box-shadow: var(--shadow);
-        }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-        .empty-state .big-icon { font-size: 64px; margin-bottom: 20px; }
-        .empty-state h3 { font-size: 20px; color: var(--text-secondary); margin-bottom: 8px; }
-
-        @media (max-width: 768px) {
-            .header { flex-direction: column; align-items: stretch; padding: 16px; }
-            .search-wrapper { max-width: 100%; }
-            .header-actions { justify-content: center; }
-            .player-container { flex-direction: column; gap: 12px; }
-            .player-timeline { width: 100%; }
-            .player-volume { display: none; }
-            .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-            .wave-btn { width: 100%; justify-content: center; font-size: 16px; padding: 14px 20px; }
-            .section-title { font-size: 18px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lite Music</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:system-ui,sans-serif; background:#0a0a0a; color:#eee; display:flex; justify-content:center; padding:20px; }
+.container { max-width:520px; width:100%; }
+h2 { text-align:center; margin:0 0 16px; font-size:24px; }
+input, button { width:100%; padding:12px 16px; border:none; border-radius:30px; font-size:15px; margin:4px 0; }
+input { background:#1a1a1a; color:#eee; outline:1px solid #333; }
+input:focus { outline-color:#1db954; }
+button { background:#1db954; color:#fff; font-weight:700; cursor:pointer; }
+button:hover { background:#169c46; }
+#results { margin-top:12px; }
+.item { background:#141414; padding:10px 14px; margin:5px 0; border-radius:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:.15s; }
+.item:hover { background:#1e1e1e; }
+.item img { width:48px; height:48px; border-radius:4px; object-fit:cover; }
+.item .ttl { font-size:14px; font-weight:500; }
+.item .art { font-size:12px; color:#888; }
+#player { display:none; margin:12px 0; }
+audio { width:100%; border-radius:30px; }
+#status { text-align:center; font-size:13px; color:#666; margin:8px 0; min-height:20px; }
+.now { text-align:center; font-size:14px; color:#1db954; margin:6px 0; min-height:20px; }
+.loading { text-align:center; padding:20px; color:#888; }
+.err { text-align:center; padding:20px; color:#f55; }
+</style>
 </head>
 <body>
 
-    <div id="toast" class="toast">✅ Готово!</div>
+    🎧 litemusic
+    <input type="text" id="q" placeholder="Песня, исполнитель..." autofocus />
+    <button onclick="search()">Искать</button>
+    🔍 поиск через YouTube без рекламы
 
-    <div class="container">
+    <audio id="a" controls autoplay></audio>
 
-        <header class="header">
-            <a href="#" class="logo">
-                🎵 <span>SosiSong</span>
-                <span class="logo-badge">LIVE</span>
-            </a>
+<script>
+// Зеркала Invidious, которые обычно работают в РФ
+const instances = [
+    'https://invidious.projectsegfau.lt',
+    'https://yewtu.be',
+    'https://inv.vern.cc',
+    'https://inv.bp.projectsegfau.lt',
+    'https://invidious.no-logs.com',
+    'https://invidious.private.coffee',
+    'https://inv.bp.private.coffee',
+    'https://invidious.sethforprivacy.com'
+];
 
-            <div class="search-wrapper">
-                <input type="text" id="search-input" placeholder="🔍 Поиск музыки...">
-                <button class="search-btn" onclick="searchMusic()">Найти</button>
-            </div>
+let activeInstance = '';
+let searchResults = [];
 
-            <div class="header-actions">
-                <button class="header-btn" onclick="showFavorites()">❤️ Избранное</button>
-                <button class="header-btn" onclick="shuffleAll()">🔀 Перемешать</button>
-            </div>
-        </header>
+async function findWorkingInstance() {
+    for (const inst of instances) {
+        try {
+            const resp = await fetch(${inst}/api/v1/stats, { signal: AbortSignal.timeout(3000) });
+            if (resp.ok) { activeInstance = inst; return true; }
+        } catch(e) {}
+    }
+    return false;
+}
 
-        <button id="wave-btn" class="wave-btn" onclick="toggleMyWave()">
-            <span id="wave-icon">🌊</span>
-            <span id="wave-text">Моя волна</span>
-            <span class="badge" id="wave-badge">OFF</span>
-        </button>
+async function search() {
+    const query = document.getElementById('q').value.trim();
+    if (!query) return;
 
-        <div id="loading">
-            <div class="spinner"></div>
-            <p>🎶 Загружаем музыку...</p>
-        </div>
+    const resDiv = document.getElementById('results');
+    resDiv.innerHTML = '⏳ Ищем...
+';
 
-        <div id="search-section" class="section" style="display:none;">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">🔍</span> Результаты</div>
-                <span class="section-more" onclick="document.getElementById('search-section').style.display='none'">✕</span>
-            </div>
-            <div class="grid" id="results-grid"></div>
-        </div>
-
-        <div id="favorites-section" class="section" style="display:none;">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">❤️</span> Любимые</div>
-                <span class="section-more" id="fav-count">0 треков</span>
-            </div>
-            <div class="grid" id="favorites-grid"></div>
-        </div>
-
-        <div id="rec-section" class="section" style="display:none;">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">✨</span> Рекомендации</div>
-            </div>
-            <div class="grid" id="rec-grid"></div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">🎤</span> Поп-хиты</div>
-            </div>
-            <div class="grid" id="genre-pop"></div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">🎸</span> Рок</div>
-            </div>
-            <div class="grid" id="genre-rock"></div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">🕺</span> Электроника</div>
-            </div>
-            <div class="grid" id="genre-electronic"></div>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title"><span class="emoji">☕</span> Чилл</div>
-            </div>
-            <div class="grid" id="genre-chill"></div>
-        </div>
-
-    </div>
-
-    <div id="player-panel" class="player-panel">
-        <div class="player-container">
-            <div class="player-info">
-                <div class="cover" id="player-cover">🎵</div>
-                <div class="meta">
-                    <div class="title" id="player-title">Выберите трек</div>
-                    <div class="artist" id="player-artist">SosiSong</div>
-                </div>
-            </div>
-
-            <div class="player-controls">
-                <button class="ctrl" onclick="prevTrack()">⏮</button>
-                <button class="ctrl play" id="play-btn" onclick="togglePlay()">▶</button>
-                <button class="ctrl" onclick="nextTrack()">⏭</button>
-                <button class="ctrl" onclick="toggleRepeat()" id="repeat-btn">🔁</button>
-            </div>
-
-            <div class="player-timeline">
-                <span class="time" id="current-time">0:00</span>
-                <input type="range" id="progress-slider" value="0" max="100">
-                <span class="time" id="total-time">0:00</span>
-            </div>
-
-            <div class="player-volume">
-                <span>🔊</span>
-                <input type="range" id="volume-slider" value="80" max="100">
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ============================================================
-        //  🔥 100% РАБОЧИЙ КОД - ИСПОЛЬЗУЕМ CORS-ПРОКСИ
-        // ============================================================
-
-        // Прокси для обхода CORS (работает в РФ)
-        const PROXY = 'https://api.allorigins.win/raw?url=';
-        // Запасной прокси
-        const PROXY2 = 'https://corsproxy.io/?';
-
-        // ===================== БАЗА ТРЕКОВ =====================
-        const PLAYLIST = [
-            // ПОП
-            { id: 'pop1', title: 'Sunny Day', artist: 'The Dreamers', genre: 'pop', icon: '☀️', url: 'https://upload.wikimedia.org/wikipedia/commons/f/f4/01_-_The_Dreamers_-_Sunny_Day.ogg' },
-            { id: 'pop2', title: 'Electric Feel', artist: 'MGMT', genre: 'pop', icon: '⚡', url: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/MGMT_-_Electric_Feel.ogg' },
-            { id: 'pop3', title: 'Young Blood', artist: 'The Naked And Famous', genre: 'pop', icon: '🌟', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/The_Naked_And_Famous_-_Young_Blood.ogg' },
-            { id: 'pop4', title: 'Midnight City', artist: 'M83', genre: 'pop', icon: '🌃', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/M83_-_Midnight_City.ogg' },
-            { id: 'pop5', title: 'Kids', artist: 'MGMT', genre: 'pop', icon: '🧒', url: 'https://upload.wikimedia.org/wikipedia/commons/5/53/MGMT_-_Kids.ogg' },
-            { id: 'pop6', title: 'Blinding Lights', artist: 'The Weeknd', genre: 'pop', icon: '💡', url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/The_Weeknd_-_Blinding_Lights.ogg' },
-            { id: 'pop7', title: 'Levitating', artist: 'Dua Lipa', genre: 'pop', icon: '🚀', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Dua_Lipa_-_Levitating.ogg' },
-            { id: 'pop8', title: 'Save Your Tears', artist: 'The Weeknd', genre: 'pop', icon: '💧', url: 'https://upload.wikimedia.org/wikipedia/commons/9/9b/The_Weeknd_-_Save_Your_Tears.ogg' },
-            { id: 'pop9', title: 'Mood', artist: '24kGoldn', genre: 'pop', icon: '😎', url: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/24kGoldn_-_Mood.ogg' },
-            { id: 'pop10', title: 'Watermelon Sugar', artist: 'Harry Styles', genre: 'pop', icon: '🍉', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Harry_Styles_-_Watermelon_Sugar.ogg' },
-            // РОК
-            { id: 'rock1', title: 'Seven Nation Army', artist: 'The White Stripes', genre: 'rock', icon: '🎸', url: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Seven_Nation_Army.ogg' },
-            { id: 'rock2', title: 'Smells Like Teen Spirit', artist: 'Nirvana', genre: 'rock', icon: '🔥', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Smells_Like_Teen_Spirit.ogg' },
-            { id: 'rock3', title: 'Back in Black', artist: 'AC/DC', genre: 'rock', icon: '⚡', url: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/ACDC_-_Back_in_Black.ogg' },
-            { id: 'rock4', title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', genre: 'rock', icon: '🌹', url: 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Guns_N%27_Roses_-_Sweet_Child_O%27_Mine.ogg' },
-            { id: 'rock5', title: 'Bohemian Rhapsody', artist: 'Queen', genre: 'rock', icon: '👑', url: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Queen_-_Bohemian_Rhapsody.ogg' },
-            // ЭЛЕКТРОНИКА
-            { id: 'elec1', title: 'Around The World', artist: 'Daft Punk', genre: 'electronic', icon: '🤖', url: 'https://upload.wikimedia.org/wikipedia/commons/d/d1/Daft_Punk_-_Around_The_World.ogg' },
-            { id: 'elec2', title: 'Strobe', artist: 'deadmau5', genre: 'electronic', icon: '🐭', url: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Deadmau5_-_Strobe.ogg' },
-            { id: 'elec3', title: 'Sandstorm', artist: 'Darude', genre: 'electronic', icon: '🏜️', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Darude_-_Sandstorm.ogg' },
-            { id: 'elec4', title: 'Scary Monsters', artist: 'Skrillex', genre: 'electronic', icon: '👾', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Skrillex_-_Scary_Monsters.ogg' },
-            // ЧИЛЛ
-            { id: 'chill1', title: 'Nuvole Bianche', artist: 'Ludovico Einaudi', genre: 'chill', icon: '☁️', url: 'https://upload.wikimedia.org/wikipedia/commons/8/8e/Einaudi_-_Nuvole_Bianche.ogg' },
-            { id: 'chill2', title: 'Weightless', artist: 'Marconi Union', genre: 'chill', icon: '🌊', url: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Marconi_Union_-_Weightless.ogg' },
-            { id: 'chill3', title: 'Clair de Lune', artist: 'Debussy', genre: 'chill', icon: '🌙', url: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Debussy_-_Clair_de_lune.ogg' },
-            { id: 'chill4', title: 'Gymnopédie No.1', artist: 'Satie', genre: 'chill', icon: '🎹', url: 'https://upload.wikimedia.org/wikipedia/commons/6/6a/Satie_-_Gymnopedie_No._1.ogg' },
-        ];
-
-        let ALL_TRACKS = [...PLAYLIST];
-        let isWaveActive = false;
-        let waveQueue = [];
-        let currentTrack = null;
-        let currentQueue = [];
-        let queueIndex = 0;
-        let isRepeat = false;
-
-        const audio = new Audio();
-        const playerPanel = document.getElementById('player-panel');
-        const playBtn = document.getElementById('play-btn');
-        const progressSlider = document.getElementById('progress-slider');
-        const volumeSlider = document.getElementById('volume-slider');
-        const currentTimeEl = document.getElementById('current-time');
-        const totalTimeEl = document.getElementById('total-time');
-
-        // ===================== HELPERS =====================
-        function getLikedIds() {
-            try { return JSON.parse(localStorage.getItem('sosi_liked')) || []; } catch { return []; }
+    if (!activeInstance) {
+        const found = await findWorkingInstance();
+        if (!found) {
+            resDiv.innerHTML = '❌ Ни одно зеркало не ответило. Попробуй позже или смени провайдера.
+';
+            return;
         }
-        function setLikedIds(ids) {
-            localStorage.setItem('sosi_liked', JSON.stringify(ids));
+[09.07.2026 8:51] Gemini: document.getElementById('status').textContent = ✅ ${activeInstance.replace('https://','')};
+    }
+
+    try {
+        const resp = await fetch(${activeInstance}/api/v1/search?q=${encodeURIComponent(query)}&type=video);
+        const data = await resp.json();
+        const videos = data.filter(v => v.videoId);
+
+        if (videos.length === 0) {
+            resDiv.innerHTML = 'Ничего не нашлось
+';
+            return;
         }
 
-        function toast(msg) {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.classList.add('show');
-            clearTimeout(el._timeout);
-            el._timeout = setTimeout(() => el.classList.remove('show'), 3000);
-        }
+        searchResults = videos;
+        resDiv.innerHTML = '';
+        videos.slice(0, 20).forEach(v => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <img src="https://img.youtube.com/vi/${v.videoId}/default.jpg" loading="lazy" />
 
-        function shuffle(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
+                    ${v.title}
 
-        function formatTime(sec) {
-            if (!sec || isNaN(sec)) return '0:00';
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        }
+                    ${v.author}
 
-        function getTrackById(id) {
-            return ALL_TRACKS.find(t => t.id === id);
-        }
-
-        // ===================== RENDER =====================
-        function renderCard(track, targetId) {
-            const container = document.getElementById(targetId);
-            if (!container) return;
-
-            const card = document.createElement('div');
-            card.className = 'track-card';
-            card.dataset.id = track.id;
-
-            const isLiked = getLikedIds().includes(track.id);
-
-            card.innerHTML = `
-                <div class="card-controls">
-                    <button class="ctrl-btn" onclick="event.stopPropagation(); shareTrack('${track.id}')">🔗</button>
-                    <button class="ctrl-btn like-btn ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike('${track.id}')">❤</button>
-                    <button class="ctrl-btn" onclick="event.stopPropagation(); addToQueue('${track.id}')">➕</button>
-                </div>
-                <div class="track-pic">
-                    ${track.icon || '🎵'}
-                    <div class="play-overlay">▶</div>
-                </div>
-                <div class="track-title">${track.title}</div>
-                <div class="track-artist">${track.artist}</div>
             `;
-
-            card.onclick = () => playTrack(track);
-            container.appendChild(card);
-        }
-
-        function renderAll() {
-            ['genre-pop', 'genre-rock', 'genre-electronic', 'genre-chill', 'favorites-grid', 'rec-grid', 'results-grid'].forEach(id => {
-                document.getElementById(id).innerHTML = '';
-            });
-
-            const popTracks = ALL_TRACKS.filter(t => t.genre === 'pop');
-            const rockTracks = ALL_TRACKS.filter(t => t.genre === 'rock');
-            const electroTracks = ALL_TRACKS.filter(t => t.genre === 'electronic');
-            const chillTracks = ALL_TRACKS.filter(t => t.genre === 'chill');
-
-            popTracks.forEach(t => renderCard(t, 'genre-pop'));
-            rockTracks.forEach(t => renderCard(t, 'genre-rock'));
-            electroTracks.forEach(t => renderCard(t, 'genre-electronic'));
-            chillTracks.forEach(t => renderCard(t, 'genre-chill'));
-
-            updateFavorites();
-            updateRecommendations();
-            updateFavCount();
-            
-            toast(`🎵 ${ALL_TRACKS.length} треков загружено!`);
-        }
-
-        // ===================== LIKES =====================
-        function toggleLike(trackId) {
-            const liked = getLikedIds();
-            const idx = liked.indexOf(trackId);
-            if (idx > -1) liked.splice(idx, 1);
-            else liked.push(trackId);
-            setLikedIds(liked);
-
-            document.querySelectorAll(`.track-card[data-id="${trackId}"] .like-btn`).forEach(b => b.classList.toggle('liked'));
-            updateFavorites();
-            updateRecommendations();
-            updateFavCount();
-            if (isWaveActive) generateWaveQueue();
-            toast(liked.includes(trackId) ? '❤️ В избранном' : '💔 Удалено');
-        }
-
-        function updateFavorites() {
-            const grid = document.getElementById('favorites-grid');
-            grid.innerHTML = '';
-            const liked = getLikedIds();
-            const section = document.getElementById('favorites-section');
-
-            if (liked.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
-            section.style.display = 'block';
-
-            liked.forEach(id => {
-                const track = getTrackById(id);
-                if (track) renderCard(track, 'favorites-grid');
-            });
-        }
-
-        function updateFavCount() {
-            document.getElementById('fav-count').textContent = `${getLikedIds().length} треков`;
-        }
-
-        function showFavorites() {
-            const section = document.getElementById('favorites-section');
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
-            if (section.style.display === 'block') updateFavorites();
-        }
-
-        // ===================== RECOMMENDATIONS =====================
-        function updateRecommendations() {
-            const liked = getLikedIds();
-            const grid = document.getElementById('rec-grid');
-            grid.innerHTML = '';
-            const section = document.getElementById('rec-section');
-
-            if (liked.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
-
-            const genres = {};
-            liked.forEach(id => {
-                const track = getTrackById(id);
-                if (track) genres[track.genre] = (genres[track.genre] || 0) + 1;
-            });
-
-            let topGenre = null;
-            let maxCount = 0;
-            for (const [genre, count] of Object.entries(genres)) {
-                if (count > maxCount) { maxCount = count; topGenre = genre; }
-            }
-
-            if (!topGenre) { section.style.display = 'none'; return; }
-
-            const recs = ALL_TRACKS.filter(t => t.genre === topGenre && !liked.includes(t.id));
-            if (recs.length === 0) { section.style.display = 'none'; return; }
-
-            section.style.display = 'block';
-            shuffle(recs).slice(0, 6).forEach(track => renderCard(track, 'rec-grid'));
-        }
-
-        // ===================== WAVE =====================
-        function generateWaveQueue() {
-            const liked = getLikedIds();
-            let pool = [...ALL_TRACKS];
-
-            if (liked.length > 0) {
-                const likedTracks = pool.filter(t => liked.includes(t.id));
-                const genres = likedTracks.map(t => t.genre);
-                const topGenre = genres.sort((a, b) => genres.filter(v => v === a).length - genres.filter(v => v === b).length).pop() || 'pop';
-                const recs = pool.filter(t => t.genre === topGenre && !liked.includes(t.id));
-
-                let mix = shuffle([...likedTracks]);
-                if (recs.length > 0) mix = mix.concat(shuffle(recs).slice(0, 4));
-                waveQueue = shuffle(mix);
-            } else {
-                waveQueue = shuffle([...pool]);
-            }
-        }
-
-        function toggleMyWave() {
-            isWaveActive = !isWaveActive;
-            const btn = document.getElementById('wave-btn');
-            const icon = document.getElementById('wave-icon');
-            const text = document.getElementById('wave-text');
-            const badge = document.getElementById('wave-badge');
-
-            if (isWaveActive) {
-                btn.classList.add('active');
-                icon.textContent = '🔥';
-                text.textContent = 'Волна играет';
-                badge.textContent = 'ON';
-                generateWaveQueue();
-                playNextWave();
-                toast('🌊 Моя волна запущена!');
-            } else {
-                btn.classList.remove('active');
-                icon.textContent = '🌊';
-                text.textContent = 'Моя волна';
-                badge.textContent = 'OFF';
-                audio.pause();
-                toast('🌊 Волна остановлена');
-            }
-        }
-
-        function playNextWave() {
-            if (!isWaveActive) return;
-            if (waveQueue.length === 0) generateWaveQueue();
-            const track = waveQueue.shift();
-            if (track) {
-                playTrack(track);
-                audio.onended = () => {
-                    if (isWaveActive) playNextWave();
-                    else audio.onended = null;
-                };
-            }
-        }
-
-        // ===================== PLAYER (ГЛАВНОЕ) =====================
-        function playTrack(track) {
-            if (!track) {
-                toast('⚠️ Трек не найден');
-                return;
-            }
-            
-            currentTrack = track;
-            document.getElementById('player-title').textContent = track.title;
-            document.getElementById('player-artist').textContent = track.artist;
-            document.getElementById('player-cover').textContent = track.icon || '🎵';
-            playerPanel.classList.add('active');
-
-            audio.pause();
-            
-            // ⭐ ПРОБУЕМ ЧЕРЕЗ ПРОКСИ
-            let proxyUrl = PROXY + encodeURIComponent(track.url);
-            
-            // Если прокси не работает, пробуем второй
-            audio.src = proxyUrl;
-            audio.volume = volumeSlider.value / 100;
-
-            toast(`⏳ Загрузка ${track.title}...`);
-
-            const playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    playBtn.textContent = '⏸';
-                    toast(`▶️ ${track.title} - ${track.artist}`);
-                }).catch((error) => {
-                    console.error('Proxy error:', error);
-                    // Пробуем второй прокси
-                    toast(`🔄 Пробуем альтернативный прокси...`);
-                    audio.src = PROXY2 + encodeURIComponent(track.url);
-                    audio.play()
-                        .then(() => {
-                            playBtn.textContent = '⏸';
-                            toast(`▶️ ${track.title} - ${track.artist}`);
-                        })
-                        .catch((err2) => {
-                            console.error('Second proxy error:', err2);
-                            // Пробуем напрямую
-                            toast(`🔄 Пробуем прямой доступ...`);
-                            audio.src = track.url;
-                            audio.play()
-                                .then(() => {
-                                    playBtn.textContent = '⏸';
-                                    toast(`▶️ ${track.title} - ${track.artist}`);
-                                })
-                                .catch((err3) => {
-                                    toast(`❌ Не удалось воспроизвести "${track.title}"`);
-                                    playBtn.textContent = '▶';
-                                });
-                        });
-                });
-            }
-
-            updateProgress();
-            
-            if (window.history && window.history.pushState) {
-                window.history.pushState({}, '', `?track=${track.id}`);
-            }
-        }
-
-        function togglePlay() {
-            if (audio.paused) {
-                audio.play();
-                playBtn.textContent = '⏸';
-            } else {
-                audio.pause();
-                playBtn.textContent = '▶';
-            }
-        }
-
-        function updateProgress() {
-            if (!audio.duration) return;
-            const progress = (audio.currentTime / audio.duration) * 100;
-            progressSlider.value = progress;
-            currentTimeEl.textContent = formatTime(audio.currentTime);
-            totalTimeEl.textContent = formatTime(audio.duration);
-        }
-
-        function nextTrack() {
-            if (isWaveActive) { playNextWave(); return; }
-            if (currentQueue.length === 0) { 
-                const random = shuffle([...ALL_TRACKS])[0];
-                if (random) playTrack(random);
-                return;
-            }
-            queueIndex = (queueIndex + 1) % currentQueue.length;
-            if (currentQueue[queueIndex]) playTrack(currentQueue[queueIndex]);
-        }
-
-        function prevTrack() {
-            if (currentQueue.length === 0) return;
-            queueIndex = (queueIndex - 1 + currentQueue.length) % currentQueue.length;
-            if (currentQueue[queueIndex]) playTrack(currentQueue[queueIndex]);
-        }
-
-        function addToQueue(trackId) {
-            const track = getTrackById(trackId);
-            if (!track) return;
-            currentQueue.push(track);
-            toast(`➕ ${track.title} в очередь`);
-        }
-
-        function shuffleAll() {
-            const all = shuffle([...ALL_TRACKS]);
-            currentQueue = all;
-            queueIndex = 0;
-            if (all[0]) playTrack(all[0]);
-            toast('🔀 Перемешано!');
-        }
-
-        function toggleRepeat() {
-            isRepeat = !isRepeat;
-            document.getElementById('repeat-btn').style.color = isRepeat ? '#1DB954' : '';
-            audio.loop = isRepeat;
-            toast(isRepeat ? '🔁 Повтор включён' : '🔁 Повтор выключен');
-        }
-
-        function shareTrack(trackId) {
-            const track = getTrackById(trackId);
-            if (!track) return;
-            const url = `${window.location.origin}${window.location.pathname}?track=${trackId}`;
-            navigator.clipboard.writeText(url).then(() => {
-                toast(`🔗 Ссылка на "${track.title}" скопирована!`);
-            }).catch(() => {
-                toast(`🔗 ${url}`);
-            });
-        }
-
-        // ===================== SEARCH =====================
-        function searchMusic() {
-            const query = document.getElementById('search-input').value.trim().toLowerCase();
-            if (!query) { toast('🔍 Введите запрос'); return; }
-
-            const section = document.getElementById('search-section');
-            const grid = document.getElementById('results-grid');
-            grid.innerHTML = '';
-            section.style.display = 'block';
-
-            const results = ALL_TRACKS.filter(t =>
-                t.title.toLowerCase().includes(query) ||
-                t.artist.toLowerCase().includes(query)
-            );
-
-            if (results.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="big-icon">🔍</div>
-                        <h3>Ничего не найдено</h3>
-                        <p>Попробуйте другой запрос</p>
-                    </div>
-                `;
-                toast('😔 Ничего не найдено');
-            } else {
-                results.forEach(track => renderCard(track, 'results-grid'));
-                toast(`🔍 Найдено ${results.length} треков`);
-            }
-        }
-
-        // ===================== KEYBOARD =====================
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT') return;
-            if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-            if (e.code === 'ArrowRight') { e.preventDefault(); audio.currentTime = Math.min(audio.currentTime + 5, audio.duration || 0); }
-            if (e.code === 'ArrowLeft') { e.preventDefault(); audio.currentTime = Math.max(audio.currentTime - 5, 0); }
-            if (e.code === 'KeyN') { nextTrack(); }
-            if (e.code === 'KeyP') { prevTrack(); }
+            div.onclick = () => playTrack(v.videoId, v.title, v.author);
+            resDiv.appendChild(div);
         });
+    } catch(e) {
+        activeInstance = ''; // сбрасываем, при следующем поиске найдёт новое
+        resDiv.innerHTML = '❌ Ошибка соединения. Попробуй ещё раз.
+';
+    }
+}
 
-        // ===================== EVENTS =====================
-        audio.addEventListener('timeupdate', updateProgress);
-        
-        audio.addEventListener('ended', () => {
-            if (isRepeat) { 
-                audio.play(); 
-            } else if (isWaveActive) { 
-                playNextWave(); 
-            } else if (currentQueue.length > 0) { 
-                nextTrack(); 
-            }
-        });
+async function playTrack(id, title, author) {
+    document.getElementById('now').textContent = 🎵 ${title} — ${author};
+    document.getElementById('player').style.display = 'block';
+    const audio = document.getElementById('a');
+    audio.src = '';
 
-        progressSlider.addEventListener('input', () => {
-            if (audio.duration) {
-                audio.currentTime = (progressSlider.value / 100) * audio.duration;
-            }
-        });
+    try {
+        const resp = await fetch(${activeInstance}/api/v1/videos/${id});
+        const data = await resp.json();
+        const streams = data.audioStreams || [];
+        const best = streams.sort((a,b) => (b.bitrate0) - (a.bitrate0))[0];
 
-        volumeSlider.addEventListener('input', () => {
-            audio.volume = volumeSlider.value / 100;
-        });
-
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchMusic();
-        });
-
-        // ===================== SHARED TRACK =====================
-        function checkSharedTrack() {
-            const params = new URLSearchParams(window.location.search);
-            const trackId = params.get('track');
-            if (trackId) {
-                const track = getTrackById(trackId);
-                if (track) {
-                    setTimeout(() => {
-                        playTrack(track);
-                    }, 500);
-                }
-            }
+        if (best) {
+            audio.src = best.url;
+            audio.play().catch(() => {});
+        } else {
+            document.getElementById('now').textContent = '❌ Нет аудиопотока';
         }
+    } catch(e) {
+        document.getElementById('now').textContent = '❌ Ошибка загрузки';
+    }
+}
 
-        // ===================== INIT =====================
-        function init() {
-            renderAll();
-            checkSharedTrack();
-
-            const lastId = localStorage.getItem('sosi_last');
-            if (lastId) {
-                const track = getTrackById(lastId);
-                if (track) {
-                    setTimeout(() => {
-                        playTrack(track);
-                        audio.pause();
-                        playBtn.textContent = '▶';
-                    }, 300);
-                }
-            }
-
-            console.log('🎵 SosiSong загружен!');
-            console.log('📡 Всего треков:', ALL_TRACKS.length);
-            console.log('🔥 Горячие клавиши: Пробел - пауза, ← → - перемотка');
-        }
-
-        // Автосохранение
-        setInterval(() => {
-            if (currentTrack) {
-                localStorage.setItem('sosi_last', currentTrack.id);
-            }
-        }, 5000);
-
-        init();
-    </script>
+// enter для поиска
+document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') search(); });
+</script>
 </body>
 </html>
