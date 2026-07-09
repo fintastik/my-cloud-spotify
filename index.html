@@ -1,145 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lite Music</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SosiSong</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:system-ui,sans-serif; background:#0a0a0a; color:#eee; display:flex; justify-content:center; padding:20px; }
-.container { max-width:520px; width:100%; }
-h2 { text-align:center; margin:0 0 16px; font-size:24px; }
-input, button { width:100%; padding:12px 16px; border:none; border-radius:30px; font-size:15px; margin:4px 0; }
-input { background:#1a1a1a; color:#eee; outline:1px solid #333; }
-input:focus { outline-color:#1db954; }
-button { background:#1db954; color:#fff; font-weight:700; cursor:pointer; }
-button:hover { background:#169c46; }
-#results { margin-top:12px; }
-.item { background:#141414; padding:10px 14px; margin:5px 0; border-radius:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:.15s; }
-.item:hover { background:#1e1e1e; }
-.item img { width:48px; height:48px; border-radius:4px; object-fit:cover; }
-.item .ttl { font-size:14px; font-weight:500; }
-.item .art { font-size:12px; color:#888; }
-#player { display:none; margin:12px 0; }
-audio { width:100%; border-radius:30px; }
-#status { text-align:center; font-size:13px; color:#666; margin:8px 0; min-height:20px; }
-.now { text-align:center; font-size:14px; color:#1db954; margin:6px 0; min-height:20px; }
-.loading { text-align:center; padding:20px; color:#888; }
-.err { text-align:center; padding:20px; color:#f55; }
+import url('https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#0a0a0f;color:#eee;min-height:100vh;display:flex;justify-content:center;padding:12px}
+
+.container{max-width:480px;width:100%}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 16px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo svg{width:36px;height:36px}
+.logo span{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.logo span i{font-style:normal;color:#1db954}
+.hdr-actions{display:flex;gap:12px}
+.hdr-actions svg{width:24px;height:24px;opacity:.5;cursor:pointer;transition:.2s}
+.hdr-actions svg:hover{opacity:1}
+
+.search-wrap{position:relative;margin-bottom:20px}
+.search-wrap input{width:100%;padding:14px 18px;border:none;border-radius:40px;background:rgba(255,255,255,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:15px;outline:1px solid rgba(255,255,255,.06);transition:.2s}
+.search-wrap input::placeholder{color:rgba(255,255,255,.3)}
+.search-wrap input:focus{outline-color:rgba(29,185,84,.5);background:rgba(255,255,255,.1)}
+.search-wrap svg{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;opacity:.3}
+
+.section{margin-bottom:22px}
+.section-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.section-top h3{font-size:18px;font-weight:600;color:#fff}
+.section-top span{font-size:12px;color:rgba(255,255,255,.3);cursor:pointer;transition:.2s}
+.section-top span:hover{color:#1db954}
+
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{background:rgba(255,255,255,.04);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:12px;padding:12px;cursor:pointer;transition:.2s;border:1px solid rgba(255,255,255,.03)}
+.card:hover{background:rgba(255,255,255,.08);transform:translateY(-1px)}
+.card-img{width:100%;aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,rgba(29,185,84,.15),rgba(29,185,84,.05));margin-bottom:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.card-img .play-overlay{position:absolute;width:40px;height:40px;background:rgba(29,185,84,.85);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s}
+.card:hover .play-overlay{opacity:1}
+.card .ttl{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e0e0e0}
+.card .sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+
+.row-cards{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.row-cards::-webkit-scrollbar{display:none}
+.row-card{min-width:140px;background:rgba(255,255,255,.035);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:10px;padding:10px;cursor:pointer;border:1px solid rgba(255,255,255,.02);transition:.2s;flex-shrink:0}
+.row-card:hover{background:rgba(255,255,255,.07)}
+[09.07.2026 9:10] Gemini: .row-card .art{width:100%;aspect-ratio:1;border-radius:6px;background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));margin-bottom:6px;overflow:hidden}
+.row-card .art img{width:100%;height:100%;object-fit:cover}
+.row-card .ttl{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-card .sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.badge-loading{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);padding:3px 8px;border-radius:20px;margin-top:6px}
+.badge-loading svg{width:12px;height:12px;animation:spin 1.2s linear infinite}
+keyframes spin{to{transform:rotate(360deg)}}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;padding:10px 20px 14px;background:rgba(10,10,15,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-around;max-width:480px;margin:0 auto}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;opacity:.35;transition:.2s;cursor:pointer}
+.nav-item.active{opacity:1}
+.nav-item.active svg{color:#1db954}
+.nav-item svg{width:22px;height:22px}
+.nav-item span{font-size:9px;letter-spacing:.3px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.nav-item.active span{color:#1db954}
+
+.now-bar{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);width:100%;max-width:460px;background:rgba(255,255,255,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.04);margin-bottom:6px;cursor:pointer}
+.now-bar .cover{width:38px;height:38px;border-radius:6px;background:linear-gradient(135deg,#1db954,#0d4f2a);flex-shrink:0;overflow:hidden}
+.now-bar .cover img{width:100%;height:100%;object-fit:cover}
+.now-bar .info{flex:1;min-width:0}
+.now-bar .info .ttl{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now-bar .info .sub{font-size:10px;color:rgba(255,255,255,.3)}
+.now-bar .ctrl svg{width:28px;height:28px;opacity:.7;cursor:pointer;transition:.2s}
+.now-bar .ctrl svg:hover{opacity:1}
 </style>
 </head>
 <body>
 
-    🎧 litemusic
-    <input type="text" id="q" placeholder="Песня, исполнитель..." autofocus />
-    <button onclick="search()">Искать</button>
-    🔍 поиск через YouTube без рекламы
+    <header>
 
-    <audio id="a" controls autoplay></audio>
+            <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" stroke="#1db954" stroke-width="2"/></svg>
+            SosiSong
 
-<script>
-// Зеркала Invidious, которые обычно работают в РФ
-const instances = [
-    'https://invidious.projectsegfau.lt',
-    'https://yewtu.be',
-    'https://inv.vern.cc',
-    'https://inv.bp.projectsegfau.lt',
-    'https://invidious.no-logs.com',
-    'https://invidious.private.coffee',
-    'https://inv.bp.private.coffee',
-    'https://invidious.sethforprivacy.com'
-];
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/></svg>
 
-let activeInstance = '';
-let searchResults = [];
+    </header>
 
-async function findWorkingInstance() {
-    for (const inst of instances) {
-        try {
-            const resp = await fetch(${inst}/api/v1/stats, { signal: AbortSignal.timeout(3000) });
-            if (resp.ok) { activeInstance = inst; return true; }
-        } catch(e) {}
-    }
-    return false;
-}
+        <input type="text" placeholder="Поиск треков, альбомов..." />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/></svg>
 
-async function search() {
-    const query = document.getElementById('q').value.trim();
-    if (!query) return;
+            🌙 Для тебя
+            Все
+[09.07.2026 9:10] Gemini: <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%231a1a2e'/%3E%3Ccircle cx='60' cy='60' r='20' fill='%231db954' opacity='.2'/%3E%3C/svg%3E" alt="">
 
-    const resDiv = document.getElementById('results');
-    resDiv.innerHTML = '⏳ Ищем...
-';
+                Lofi Beats
 
-    if (!activeInstance) {
-        const found = await findWorkingInstance();
-        if (!found) {
-            resDiv.innerHTML = '❌ Ни одно зеркало не ответило. Попробуй позже или смени провайдера.
-';
-            return;
-        }
-[09.07.2026 8:51] Gemini: document.getElementById('status').textContent = ✅ ${activeInstance.replace('https://','')};
-    }
+                lofi girl, jinsang
 
-    try {
-        const resp = await fetch(${activeInstance}/api/v1/search?q=${encodeURIComponent(query)}&type=video);
-        const data = await resp.json();
-        const videos = data.filter(v => v.videoId);
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                    загружается
 
-        if (videos.length === 0) {
-            resDiv.innerHTML = 'Ничего не нашлось
-';
-            return;
-        }
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%232e1a1a'/%3E%3Ccircle cx='60' cy='60' r='20' fill='%231db954' opacity='.2'/%3E%3C/svg%3E" alt="">
 
-        searchResults = videos;
-        resDiv.innerHTML = '';
-        videos.slice(0, 20).forEach(v => {
-            const div = document.createElement('div');
-            div.className = 'item';
-            div.innerHTML = `
-                <img src="https://img.youtube.com/vi/${v.videoId}/default.jpg" loading="lazy" />
+                Night Drive
 
-                    ${v.title}
+                kavinsky, fm-84
 
-                    ${v.author}
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%231a2e1a'/%3E%3Ccircle cx='60' cy='60' r='20' fill='%231db954' opacity='.2'/%3E%3C/svg%3E" alt="">
 
-            `;
-            div.onclick = () => playTrack(v.videoId, v.title, v.author);
-            resDiv.appendChild(div);
-        });
-    } catch(e) {
-        activeInstance = ''; // сбрасываем, при следующем поиске найдёт новое
-        resDiv.innerHTML = '❌ Ошибка соединения. Попробуй ещё раз.
-';
-    }
-}
+                Chill Wave
 
-async function playTrack(id, title, author) {
-    document.getElementById('now').textContent = 🎵 ${title} — ${author};
-    document.getElementById('player').style.display = 'block';
-    const audio = document.getElementById('a');
-    audio.src = '';
+                tame impala, mgmt
 
-    try {
-        const resp = await fetch(${activeInstance}/api/v1/videos/${id});
-        const data = await resp.json();
-        const streams = data.audioStreams || [];
-        const best = streams.sort((a,b) => (b.bitrate0) - (a.bitrate0))[0];
+            🔥 Популярное
+            Все
 
-        if (best) {
-            audio.src = best.url;
-            audio.play().catch(() => {});
-        } else {
-            document.getElementById('now').textContent = '❌ Нет аудиопотока';
-        }
-    } catch(e) {
-        document.getElementById('now').textContent = '❌ Ошибка загрузки';
-    }
-}
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='160' height='160' fill='%231a1a2e'/%3E%3Ctext x='20' y='90' font-size='40' fill='%231db954' opacity='.4'%3E♪%3C/text%3E%3C/svg%3E" alt="">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"></svg>
 
-// enter для поиска
-document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') search(); });
-</script>
+                Blinding Lights
+
+                Weeknd
+
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='160' height='160' fill='%232e1a1a'/%3E%3Ctext x='20' y='90' font-size='40' fill='%231db954' opacity='.4'%3E♪%3C/text%3E%3C/svg%3E" alt="">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"></svg>
+
+                Starboy
+
+                Weeknd, Daft Punk
+
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='160' height='160' fill='%231a2e1a'/%3E%3Ctext x='20' y='90' font-size='40' fill='%231db954' opacity='.4'%3E♪%3C/text%3E%3C/svg%3E" alt="">
+[09.07.2026 9:10] Gemini: <svg width="18" height="18" viewBox="0 0 24 24" fill="white"></svg>
+
+                As It Was
+
+                Harry Styles
+
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='160' height='160' fill='%232e2e1a'/%3E%3Ctext x='20' y='90' font-size='40' fill='%231db954' opacity='.4'%3E♪%3C/text%3E%3C/svg%3E" alt="">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white"></svg>
+
+                Save Your Tears
+
+                Weeknd
+
+            📂 Недавние
+            История
+
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%231a1a2e'/%3E%3Ccircle cx='60' cy='60' r='20' fill='%231db954' opacity='.15'/%3E%3C/svg%3E" alt="">
+
+                After Hours
+
+                Weeknd
+
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%232e1a2e'/%3E%3Ccircle cx='60' cy='60' r='20' fill='%231db954' opacity='.15'/%3E%3C/svg%3E" alt="">
+
+                Currents
+
+                Tame Impala
+
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='%231db954' opacity='.3'/%3E%3C/svg%3E" alt="">
+
+        Blinding Lights
+
+        Weeknd
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+
+<nav class="bottom-nav">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"></svg>
+        Главная
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/></svg>
+        Треки
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Альбомы
+[09.07.2026 9:10] Gemini: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/></svg>
+        Профиль
+
+</nav>
+
 </body>
 </html>
