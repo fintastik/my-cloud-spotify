@@ -1,1 +1,29 @@
+# generate_db.py
+import json
+import random
 
+artists = ['Кино','Ария','ДДТ','Любэ','Король и Шут','Земфира','Сплин','Би-2','Михаил Круг','Григорий Лепс','Стас Михайлов','Егор Крид','Тимати','Мот','Элджей','Макс Корж','Скриптонит','Хаски','Oxxxymiron','Кровосток']
+songs = ['Группа крови','Кукушка','Хочу перемен','Пачка сигарет','Звезда по имени Солнце','Конь','Позови меня','Владимирский централ','Таганка','Мурка','Колыма','Гоп-стоп','На Магадан','Паровоз','Дорога','Журавли','Купола','На заре','Трава у дома']
+genres = ['rock','pop','shanson','chill']
+icons = ['🎸','🎤','🎵','☕']
+
+tracks = []
+for i in range(100000):
+    artist = random.choice(artists)
+    song = random.choice(songs)
+    genre = random.choice(genres)
+    num = random.randint(1, 25)
+    tracks.append({
+        "id": f"ru_{i+1:06d}",
+        "title": song + (" (Live)" if i%2==0 else " (Акустика)" if i%3==0 else ""),
+        "artist": artist,
+        "genre": genre,
+        "cover": icons[genres.index(genre)],
+        "url": f"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-{num}.mp3",
+        "duration": random.randint(150, 300)
+    })
+
+with open('russian_tracks.json', 'w', encoding='utf-8') as f:
+    json.dump(tracks, f, ensure_ascii=False, indent=2)
+
+print(f'✅ Создано {len(tracks)} треков')
