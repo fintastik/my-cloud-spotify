@@ -312,3 +312,80 @@ function seek(e) {
 
 // ===== UTILITY =====
 function formatTime(sec) {
+    if (!sec || isNaN(sec) || sec < 0) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function showNotification(msg, type = 'info') {
+    const el = $('notification');
+    el.textContent = msg;
+    el.className = `notification ${type} show`;
+    clearTimeout(el._timeout);
+    el._timeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== SECTIONS =====
+function switchSection(section) {
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.textContent.toLowerCase().includes(section));
+    });
+    if (section === 'search') {
+        $('content').innerHTML = `
+            <div class="empty">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <p>Введите запрос для поиска</p>
+                <p style="font-size:13px;color:#666;">${allTracks.length} русских треков</p>
+            </div>
+        `;
+    } else if (section === 'library') {
+        renderLibrary();
+    } else if (section === 'local') {
+        $('content').innerHTML = `
+            <div style="padding:40px;text-align:center;border:2px dashed rgba(255,255,255,.1);border-radius:16px;">
+                <h3 style="margin-bottom:8px;">📁 Добавить файлы</h3>
+                <p style="color:#888;font-size:14px;">MP3, FLAC, WAV</p>
+                <button onclick="document.getElementById('fileInput').click()" style="margin-top:16px;padding:12px 32px;background:#ff6b35;border:none;border-radius:24px;color:#fff;font-weight:600;cursor:pointer;">Выбрать файлы</button>
+            </div>
+        `;
+    }
+}
+
+// ===== LOCAL FILES =====
+$('fileInput').addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    files.forEach(file => {
+        const url = URL.createObjectURL(file);
+        allTracks.push({
+            id: 'local_' + Date.now() + Math.random().toString(36).slice(2, 6),
+            title: file.name.replace(/\.[^.]+$/, ''),
+            artist: 'Локальный файл',
+            genre: 'local',
+            cover: '📁',
+            url: url,
+            duration: 0
+        });
+    });
+    showNotification(`✅ Добавлено ${files.length} файлов`, 'success');
+    e.target.value = '';
+});
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    if (e.code === 'ArrowRight' && e.ctrlKey) { e.preventDefault(); nextTrack(); }
+    if (e.code === 'ArrowLeft' && e.ctrlKey) { e.preventDefault(); prevTrack(); }
+    if (e.code === 'KeyS' && e.ctrlKey) { e.preventDefault(); $('searchInput').focus(); }
+});
+
+// ===== INIT =====
+audio.volume = 0.7;
+$('volumeFill').style.width = '70%';
+loadDatabase();
+
+console.log('🎵 Melodika загружена!');
+console.log('📡 База загружается из GitHub...');
+console.log('⌨️ Горячие клавиши: Пробел - пауза, Ctrl+→/← - перемотка');
